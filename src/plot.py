@@ -1,227 +1,28 @@
 # Import package
 import os
-import logging
-import coloredlogs
-import traceback
 from copy import deepcopy
-import openpyxl
 import pandas as pd
-import numpy as np
-from datetime import datetime, time, timedelta
+from datetime import datetime, time
 import pandapower as pp
 import pandapower.plotting.plotly as pplotly
-import pandapower.control as control
-import pandapower.timeseries as timeseries
-from pandapower.timeseries.data_sources.frame_data import DFData
 import plotly.graph_objects as go
 from plotly.graph_objs import Figure, Layout
 from plotly.graph_objs.layout import XAxis, YAxis
+import logging
+import coloredlogs
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
-
-def parse_grid_from_xlsx(file_path: str) -> pp.pandapowerNet:
- 
-    # Columns which have to be set by default when None value is founded
-    default_values: dict = {
-        "in_service": True, "g_us_per_km": 0.0, "g0_us_per_km": 0.0, "r0_ohm_per_km": 0.0, "x0_ohm_per_km": 0.0,
-        "c0_nf_per_km": 0.0, "parallel": 1, "df": 1.0, "p_mw": 0.0, "q_mvar": 0.0, "const_z_percent": 0.0,
-        "const_i_percent": 0.0, "scaling": 1.0, "vk0_percent": 0.0, "vkr0_percent": 0.0, "mag0_percent": 0.0,
-        "mag0_rx": 0.0, "si0_hv_partial": 0.0, "shift_degree": 0.0, "tap_step_percent": 1.0, "tap_phase_shifter": False,
-        "tap_step_degree": 0.0, "vm_pu": 1.0, "va_degree": 0.0, "slack_weight": 1.0, "tap_pos": 0, "tap_neutral": 0,
-        "tap_min": 0, "tap_max": 1, "profile_mapping": -1, "current_source": True
-    }
-    # Columns which as to be converted to another type
-    int_column: list[str] = ["bus", "parallel", "from_bus", "to_bus", "element", "hv_bus", "lv_bus", "tap_pos",
-                             "tap_neutral", "tap_min", "tap_max", "profile_mapping"]
-    bool_column: list[str] = ["current_source", "in_service"]
-    # Create empty network
-    net: pp.pandapowerNet = pp.create_empty_network()
-    # Open Excel file and iterate over every existing sheet table
-    for eq_name in openpyxl.load_workbook(file_path).sheetnames:
-        # Create a dataFrame form an Excel sheet table
-        data_df: pd.DataFrame = pd.read_excel(file_path, sheet_name=eq_name).drop(columns="idx").dropna(how="all")
-        if not data_df.empty:
-            # Fill null values using default_values dictionary
-            data_df.fillna(value=default_values, inplace=True)
-            # Fill bus and load types
-            if eq_name == "bus":
-                data_df.fillna(value={"type": "b"}, inplace=True)
-            elif eq_name == "load":
-                data_df.fillna(value={"type": "wye"}, inplace=True)
-            elif eq_name == "line_geodata":
-                # Create list of coordinates from string
-                data_df["coords"] = data_df.coords.apply(
-                    lambda x: list(map(lambda y: [float(z) for z in y.split(",")],
-                                       x.replace("[[", "").replace("]]", "").split("], ["))))
-            # Change needed columns type from float to int64
-            col: list[str] = list(set(data_df.columns).intersection(int_column))
-            data_df[col] = data_df[col].astype('int64')
-            # Change needed columns type from float to bool
-            col: list[str] = list(set(data_df.columns).intersection(bool_column))
-            data_df[col] = data_df[col].astype(bool)
-            # Replace np.nan to None
-            data_df = data_df.replace(np.nan, None)
-            # Create pandapower network
-            net[eq_name] = data_df
-    return net
-
-
-def load_power_profile(file_path: str) -> dict[str, dict[str, pd.DataFrame]]:
-    """
-
-    Args:
-        file_path:
-
-    Returns:
-
-    """
-    # Initialize power profiles dictionaries
-    power_profile: dict[str, pd.DataFrame] = dict()
-    results: dict[str, dict[str, pd.DataFrame]] = dict()
-    # Initialize times which will be used to interpolate power profiles
-    period = timedelta(days=1)
-    end_time = time()
-    start_time = time(23, 59, 59)
-    # Load every Excel sheet names
-    for eq_name in openpyxl.load_workbook(file_path).sheetnames:
-        # Create a dataFrame form an Excel sheet table
-        data_df = pd.read_excel(
-            file_path, sheet_name=eq_name, header=[0, 1], index_col=0
-            ).dropna(how="all", axis=1).dropna(how="all", axis=0)
-        # If there is no data within the Excel sheet don't save the dataFrame
-        if not data_df.empty:
-            # Save DataFrame in power profile dictionary 
-            power_profile[eq_name] = data_df
-            # Find the most suitable common period, start time and end time
-            date_time = pd.Series(data_df.index).apply(lambda x: datetime.combine(datetime.today(), x))
-            period = min(period, date_time.diff().min())
-            start_time = min(start_time, data_df.index[0])
-            end_time = max(end_time, data_df.index[-1])
-
-    # Create common datetime index for every power profiles
-    datetime_index = pd.Series(
-        pd.date_range(
-            start= datetime.combine(datetime.today(),start_time),
-            end= datetime.combine(datetime.today(),end_time),
-            freq=period
-        ).to_pydatetime()).apply(lambda x: x.time())
-    # Create a dataframe with common time and its corresponding timestamp number
-    datetime_inter = pd.DataFrame(
-        range(datetime_index.shape[0]), index=datetime_index,
-        columns=["timestamp"]
-    )
-    for eq_name, eq_power in power_profile.items():
-        # Create multiindex columns from power profile
-        columns = pd.MultiIndex.from_tuples(
-            eq_power.columns, names=["profile", "power"]
-        )
-        # Concatenate power profile with created common datetime index
-        data_df  = pd.concat([datetime_inter, eq_power], axis=1).sort_index()
-        # Fill timestamps unmatched using closest neighbors (forward and backward in order to fill every null)
-        data_df["timestamp"] = data_df["timestamp"].fillna(method='ffill').fillna(method='bfill')
-        # Group timestamp to keep only the first founded non-null value and then fill null values using
-        # first order interpolation
-        data_df =  data_df\
-            .groupby("timestamp").first()\
-            .interpolate().fillna(method="bfill").fillna(method="ffill")\
-        # Create interpolated dataframe with good index and apply into results dictionary
-        actual_profile = pd.DataFrame(
-            data_df.values, index=datetime_inter.index, columns=columns
-        )
-        results[eq_name] = dict()
-        if "P [MW]" in eq_power.columns.levels[1]:
-            results[eq_name]["p_mw"] = actual_profile.xs("P [MW]", level=1,axis=1).dropna(how="all", axis=1)
-        if "Q [MVAR]" in eq_power.columns.levels[1]:
-            results[eq_name]["q_mvar"] =  actual_profile.xs("Q [MVAR]", level=1,axis=1).dropna(how="all", axis=1)
-    return results
-
-
-def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: dict[str, pd.DataFrame]):
-
-    # Check if pandapower network already have controllers for the given equipment and delete them
-    if not net.controller.empty:
-        old_controller_index = net.controller[net.controller.object.apply(lambda x: x.element) == equipment].index
-        net.controller = net.controller.drop(old_controller_index).reset_index(drop=True)
-    # Create a dictionary from profile_mapping column
-    profile_mapping: dict = net[equipment]\
-        .reset_index()\
-        .groupby("profile_mapping")["index"]\
-        .apply(list).to_dict()
-    for variable, profile in power_profiles.items():
-        if profile is not None:
-            #
-            if "time_index" in net.keys():
-                if not (net["time_index"] == pd.DataFrame(profile.index, columns=["Time"])).all().all():
-                    log.error("Simulation Profiles have not the same timestamps")
-            else:
-                net["time_index"] = pd.DataFrame(profile.index, columns=["Time"])
-            if profile_mapping:
-                mapped_profile = pd.DataFrame(index=profile.index)
-                for profile_id, eq_list in profile_mapping.items():
-                    if profile_id in profile.columns:
-                        mapped_profile[eq_list] = list(zip(*[list(profile[profile_id].values)] * len(eq_list)))
-            else:
-                mapped_profile = profile[net[equipment].index.intersection(profile.columns)]
-            unmapped_equipment = net[equipment].index.difference(mapped_profile.columns)
-            if len(unmapped_equipment) != 0:
-                unmapped_eq_names = ", ".join(net[equipment].loc[unmapped_equipment, "name"].values)
-                log.warning("{} equipments have no {} profiles".format(unmapped_eq_names, variable))
-            mapped_profile.reset_index(drop=True, inplace=True)
-
-            control.ConstControl(net, element=equipment, element_index=mapped_profile.columns,
-                                 variable=variable, data_source=DFData(mapped_profile),
-                                 profile_name=mapped_profile.columns)
-
-def create_output_writer(net: pp.pandapowerNet, add_results: list[str] = None):
-
-    
-    results =  add_results + ["res_trafo.loading_percent"] if add_results else ["res_trafo.loading_percent"]
-    ow = timeseries.OutputWriter(net)
-               
-    for result in results:
-        ow.log_variable(*result.split("."))
-
-def run_time_simulation(
-        net: pp.pandapowerNet, output_filename: str = None, folder: str= r"output"
-) -> dict[str, pd.DataFrame]:
-
-    timeseries.run_timeseries(net, time_steps=range(net["time_index"].shape[0]), verbose=False)
-    results_df: dict[str, pd.DataFrame] = dict()
-    for key, result in net.output_writer.at[0, "object"].output.items():
-        if key != "Parameters":
-            results_df[key] = result.set_index(net["time_index"].Time)
-            eq = key.replace("res_", "").split(".")[0]
-            name_mapping = dict(zip(net[eq].index, net[eq].name))
-            results_df[key] = results_df[key].rename(columns=name_mapping)
-
-    if output_filename:
-        output_file_path = os.path.join(folder, output_filename + ".xlsx")
-        try:
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            writer: pd.ExcelWriter = pd.ExcelWriter(output_file_path)
-            for keys in results_df.keys():
-                results_df[keys].to_excel(writer, sheet_name=keys, index_label="Time")
-            # writer.save()
-        except(Exception,):
-            log.error("Error in {} function:\n".format(traceback.extract_stack()[-1].name) +
-                        "Impossible to save simulation results in {} file\n".format(output_file_path) +
-                        "Check output file path or if file is already open in your computer")
-    return results_df
-
-def plot_net_by_zone(net: pp.pandapowerNet, plot_title: str = None, filename: str = None, folder: str = "plot",
-                     vertical_tree: bool = True, line_width: int = 3,
-                     bus_size: int = 20, **kwargs):
+def plot_power_network(net: pp.pandapowerNet, plot_title: str = None, filename: str = None, folder: str = "plot",
+             add_zone: bool = True, line_width: int = 3,
+             bus_size: int = 20, **kwargs):
     net_copy = deepcopy(net)
     colors = ['b', 'g', 'r', 'c', 'm', 'k', 'w']
     # Generate bus geodata if needed
     if net_copy.bus_geodata.empty:
         pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
-        # Rotate figure if wanted
-        if vertical_tree:
-            net_copy.bus_geodata[["x", "y"]] = net_copy.bus_geodata[["y", "x"]]
-            net_copy.bus_geodata["y"] *=-1
+        net_copy.bus_geodata[["x", "y"]] = net_copy.bus_geodata[["y", "x"]]
+        net_copy.bus_geodata["y"] *=-1
 
     traces = []
     # create lines trace
@@ -246,18 +47,26 @@ def plot_net_by_zone(net: pp.pandapowerNet, plot_title: str = None, filename: st
     bus_info = pd.Series(
         index=net_copy.bus.index,
         data=net_copy.bus.name + '<br>' + net_copy.bus.vn_kv.astype(str) + ' kV')
-    for i, zone in enumerate(net_copy.bus.zone.unique()):
-        bus_index = net_copy.bus[net_copy.bus.zone == zone].index
+    if add_zone:
+        net_copy.bus.zone = net_copy.bus.zone.fillna("Unknown")
+        for i, zone in enumerate(net_copy.bus.zone.unique()):
+            bus_index = net_copy.bus[net_copy.bus.zone == zone].index
+            traces += pplotly.create_bus_trace(
+                net_copy, buses=bus_index, size=bus_size, color=colors[i],
+                infofunc=bus_info.loc[bus_index],
+                trace_name="Zone {}".format(zone)
+            )  # create buses
+    else:
         traces += pplotly.create_bus_trace(
-            net_copy, buses=bus_index, size=bus_size, color=colors[i],
-            infofunc=bus_info.loc[bus_index],
-            trace_name="Zone {}".format(zone)
-        )  # create buses
+            net_copy, buses=net_copy.bus.index, size=bus_size, color=colors[0],
+            infofunc=bus_info,
+            trace_name="Bus"
+        )
     fig = _draw_traces(traces=traces, showlegend=True)
     save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
 
 
-def plot_net_simple_powerflow_result(
+def plot_powerflow_result(
         net: pp.pandapowerNet, filename: str = None, folder: str="output", plot_title: str=None,
         line_width: int = 3, trafo_width: int =7, bus_size: int = 20, voltage_cmap: str = "jet",
         loading_cmap: str =  "jet", voltage_range: tuple[float] = (0.85, 1.15),
@@ -299,7 +108,7 @@ def plot_net_simple_powerflow_result(
         **loading_range** (tuple[float], (0, 100)): Voltage range used by the plotly Continuous Color Scales
         (loading units are in %).
 
-        **kwargs**: Every parameter found in save_fig function could also be added if needed
+        **\*\*kwargs**: Every parameter found in save_fig function could also be added if needed
 
     """
     net_copy = deepcopy(net)
@@ -346,7 +155,7 @@ def plot_net_simple_powerflow_result(
     save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, width=width, **kwargs)
 
 
-def plot_net_short_circuit_result(
+def plot_short_circuit_result(
         net: pp.pandapowerNet, filename: str=None, folder: str="plot", plot_title:str=None,
         line_width: int = 3, trafo_width: int =7, bus_size: int = 20,
         cmap: str = "jet", **kwargs
@@ -377,7 +186,7 @@ def plot_net_short_circuit_result(
         Electric, Viridis). Further explanation are founded in
         `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
 
-        **kwargs**: Every parameter found in save_fig function could also be added if needed.
+        **\*\*kwargs**: Every parameter found in save_fig function could also be added if needed.
     """
     net_copy = deepcopy(net)
     traces = []
@@ -416,7 +225,7 @@ def plot_net_short_circuit_result(
     save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
 
 
-def plot_net_time_simulation_result(
+def plot_timestep_powerflow_result(
         net: pp.pandapowerNet, plot_time: time, filename: str = None, folder: str="plot", **kwargs
     ):
     """Plot network scheme in plotly figure with powerflow results from one chosen timestep displayed
@@ -436,7 +245,7 @@ def plot_net_time_simulation_result(
 
          **plot_title** (str, None): Title displayed on the top of the figure.
 
-         **kwargs**: Every parameter found in save_fig and
+         **\*\*kwargs**: Every parameter found in save_fig and
          plot_net_simple_powerflow_result functions could also be added if needed.
     """
     net_copy = deepcopy(net)
@@ -447,7 +256,7 @@ def plot_net_time_simulation_result(
         net_copy.res_bus.vm_pu = list(ow["res_bus.vm_pu"].iloc[idx])
         net_copy.res_line.loading_percent = list(ow["res_line.loading_percent"].iloc[idx])
         net_copy.res_trafo.loading_percent = list(ow["res_trafo.loading_percent"].iloc[idx])
-        plot_net_simple_powerflow_result(
+        plot_powerflow_result(
             net=net_copy, plot_title=plot_title, filename=filename, folder=folder, **kwargs
         )
     else:
@@ -497,9 +306,9 @@ def _draw_traces(traces: list, showlegend: bool) -> Figure:
     `create_line_trace` and `create_trafo_trace`
 
     INPUT:
-        **traces** (list): list of dicts which correspond to plotly traces.
+        **traces** (list): List of dicts which correspond to plotly traces.
 
-        **showlegend**
+        **showlegend** (bool) : If it is true, legend of traces will be displayed.
 
     OUTPUT:
         **figure** (graph_objs._figure.Figure): figure object
@@ -561,7 +370,7 @@ def save_fig(
 
         **legend_size** (int, 12): Legends characters size.
 
-        **tick_size (int, 12): Ticks characters size.
+        **tick_size** (int, 12): Ticks characters size.
 
         **axis_title_size** (int, 12): Axis title characters size.
 

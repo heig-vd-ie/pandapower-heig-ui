@@ -8,7 +8,7 @@ import pandas as pd
 import pandapower as pp
 import pandapower.shortcircuit as sc
 
-from src.pandapower_heig_ui import parse_grid_from_xlsx, plot_net_by_zone, load_power_profile, \
+from src.plot import parse_grid_from_xlsx, plot_net_by_zone, load_power_profile, \
     create_output_writer, run_time_simulation, plot_timeseries_result, apply_power_profile,\
     plot_net_time_simulation_result, plot_net_short_circuit_result, _time_to_str
 
