@@ -423,8 +423,9 @@ def plot_net_time_simulation_result(
 
      INPUT:
          **net** (pandapower.pandapowerNet): pandaPower network object with time simulation powerflow results stored.
-          Powerflow simulations are described in
+         Powerflow simulations are described in
          `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+
          **plot_time** (datetime.time): Timestep used to plot results
 
      OPTIONAL:
@@ -494,20 +495,18 @@ def _draw_traces(traces: list, showlegend: bool) -> Figure:
     """
     Intern function used to create a plotly figure from a list of trace created by pandasPower using `create_bus_trace`,
     `create_line_trace` and `create_trafo_trace`
-     `functions <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
-    to `PLOTLY <https://plot.ly/python/>`
 
     INPUT:
-        **traces** - list of dicts which correspond to plotly traces
-        generated using: `create_bus_trace`, `create_line_trace`, 
-        `create_trafo_trace`
+        **traces** (list): list of dicts which correspond to plotly traces.
+
+        **showlegend**
 
     OUTPUT:
-        **figure** (graph_objs._figure.Figure) figure object
+        **figure** (graph_objs._figure.Figure): figure object
 
     """
 
-    fig = Figure(data=traces,  # edge_trace
+    fig = Figure(data=traces,
                  layout=Layout(
                      showlegend=showlegend,
                      hovermode='closest',
