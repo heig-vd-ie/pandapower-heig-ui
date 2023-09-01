@@ -16,11 +16,11 @@ from pandapower.timeseries.data_sources.frame_data import DFData
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
 
-def parse_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
+def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
     """
-    Pay attention to thefollowing points:
+    Create a pandaPower network object using data stored in a xlsx file. Pay attention to the following points:
 
-        - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui>`_.
+        - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
         - Every column marked in green is mandatory.
         - Every column marked in yellow is mandatory for single phase short-circuit simulation.
         - Every column marked in red is mandatory to map loads and generators to their timeseries power profile (timeseries powerflow simulation).
@@ -31,6 +31,7 @@ def parse_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
 
     OUTPUT:
         **net** (pandapower.pandapowerNet): Created pandaPower object from xlsx file
+
     """
     # Columns which have to be set by default when None value is founded
     default_values: dict = {
@@ -77,7 +78,20 @@ def parse_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
     return net
 
 
-def load_power_profile(file_path: str) -> dict[str, dict[str, pd.DataFrame]]:
+def load_power_profile_form_xlsx(file_path: str) -> dict[str, dict[str, pd.DataFrame]]:
+    """
+    Load power profile from a xlsx file and return a dictionary of pandas DataFrame ready to be applied to a
+    pandaPower network for timeseries simulations. The function also interpolate power profiles in order they all have
+    the same time steps. Finally, the function is only able to load one-day power profiles.
+
+    INPUT:
+        **file_path** (str): File path of the xlsx file where the power network data are stored.
+
+    OUTPUT:
+        **power_profile** (dict[str, dict[str, pd.DataFrame]]): Power profiles stored in dictionary of pandas DataFrame
+        format
+
+    """
     # Initialize power profiles dictionaries
     power_profile: dict[str, pd.DataFrame] = dict()
     results: dict[str, dict[str, pd.DataFrame]] = dict()
@@ -140,6 +154,25 @@ def load_power_profile(file_path: str) -> dict[str, dict[str, pd.DataFrame]]:
 
 
 def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: dict[str, pd.DataFrame]):
+    """
+    Apply power profiles stored in dictionary of pandas DataFrame format to a pandaPower network in order to perform
+    `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+    The function create
+    `pandaPower Controller <https://pandapower.readthedocs.io/en/v2.13.1/control/controller.html#constcontrol>`_ for each
+    DataFrame found in power_profiles input. If the network already contains controllers linked to the equipment input,
+    the function will first erase them. In order to apply wanted power profiles to wanted element, use profile_mapping
+    column found in load and sgen equipments.
+
+
+    INPUT:
+        **net** (pandapower.pandapowerNet): pandaPower network object.
+
+        **equipment** (str): Equipment name in which power profiles will be applied (load, sgen)
+
+        **power_profile** (dict[str, pd.DataFrame]): Power profiles stored in dictionary of pandas DataFrame
+        format. The keys of the dictionary correspond to the power parameter of equipments ("p_mw", "q_mvar")
+
+    """
     # Check if pandapower network already have controllers for the given equipment and delete them
     if not net.controller.empty:
         old_controller_index = net.controller[net.controller.object.apply(lambda x: x.element) == equipment].index
@@ -175,8 +208,26 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
                                  profile_name=mapped_profile.columns)
 
 
-def create_output_writer(net: pp.pandapowerNet, add_results: list[str] = None):
-    results = add_results + ["res_trafo.loading_percent"] if add_results else ["res_trafo.loading_percent"]
+def create_output_writer(net: pp.pandapowerNet, add_results: [list[str] | str] = None):
+    """
+    Define which results will be stored as output. The function create a
+    `pandaPower OutputWriter <https://pandapower.readthedocs.io/en/v2.13.1/timeseries/output_writer.html>`_
+    with the following default outputs "res_bus.vm_pu", "res_line.loading_percent" and "res_trafo.loading_percent".
+    Other needed outputs could be added using add_results parameters.
+
+    INPUT:
+        **net** (pandapower.pandapowerNet): pandaPower network object.
+
+        **add_results** ([list[str] | str], None): Additional simulations results to be stored as output.
+
+    """
+    if isinstance(add_results, list):
+        results = add_results + ["res_trafo.loading_percent"]
+    elif isinstance(add_results, str):
+        results = [add_results, "res_trafo.loading_percent"]
+    else:
+        results = ["res_trafo.loading_percent"]
+
     ow = timeseries.OutputWriter(net)
 
     for result in results:
@@ -186,6 +237,23 @@ def create_output_writer(net: pp.pandapowerNet, add_results: list[str] = None):
 def run_time_simulation(
         net: pp.pandapowerNet, output_filename: str = None, folder: str = r"output"
 ) -> dict[str, pd.DataFrame]:
+    """
+    Run time simulation power flow to a pandaPower network where power profile has been applied. Then, the results
+    will be transformed in a dictionary of DataFrame and saved in a xlsx file if wanted.
+
+
+    INPUT:
+        **net** (pandapower.pandapowerNet): pandaPower network object containing a
+        `Controller <https://pandapower.readthedocs.io/en/v2.13.1/control/controller.html#constcontrol>`_ and a
+        `OutputWriter <https://pandapower.readthedocs.io/en/v2.13.1/timeseries/output_writer.html>`_
+
+    OPTIONAL:
+        **output_filename** (str, None): File name of the xlsx file where the simulation results will be stored. If
+        this parameter is not filled, the function will not save the results.
+
+        **folder** (str, "output"): Folder name where results will be stored.
+
+    """
     timeseries.run_timeseries(net, time_steps=range(net["time_index"].shape[0]), verbose=False)
     results_df: dict[str, pd.DataFrame] = dict()
     for key, result in net.output_writer.at[0, "object"].output.items():
