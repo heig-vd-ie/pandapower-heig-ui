@@ -2,20 +2,20 @@ src package
 ===========
 
 Submodules
-----------
+---------------
 
-src.pandapower\_heig\_ui module
--------------------------------
+pp_heig_ui.plot
+---------------
 
-.. automodule:: src.pandapower_heig_ui
+.. automodule:: plot
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+pp_heig_ui.simulation
+---------------------
 
-.. automodule:: src
+.. automodule:: simulation
    :members:
    :undoc-members:
    :show-inheritance:
