@@ -72,7 +72,10 @@ def plot_powerflow_result(
         loading_cmap: str =  "jet", voltage_range: tuple[float] = (0.85, 1.15),
         loading_range: tuple[int] = (0, 100), width: int= 770, **kwargs
         ):
-    """Plot network scheme in plotly figure with powerflow results displayed
+    """
+
+    Plot network scheme in plotly figure with powerflow results displayed.
+
 
     INPUT:
         **net** (pandapower.pandapowerNet): pandaPower network object with powerflow results stored. Powerflow
@@ -108,7 +111,7 @@ def plot_powerflow_result(
         **loading_range** (tuple[float], (0, 100)): Voltage range used by the plotly Continuous Color Scales
         (loading units are in %).
 
-        **\*\*kwargs**: Every parameter found in save_fig function could also be added if needed
+        ****kwargs**: Every parameter found in save_fig function could also be added if needed.
 
     """
     net_copy = deepcopy(net)
@@ -160,7 +163,10 @@ def plot_short_circuit_result(
         line_width: int = 3, trafo_width: int =7, bus_size: int = 20,
         cmap: str = "jet", **kwargs
     ):
-    """Plot network scheme in plotly figure with short-circuit results displayed
+    """
+
+    Plot network scheme in plotly figure with short-circuit results displayed
+
 
     INPUT:
         **net** (pandapower.pandapowerNet): pandaPower network object with short-circuit results stored. Short-circuit
@@ -186,7 +192,8 @@ def plot_short_circuit_result(
         Electric, Viridis). Further explanation are founded in
         `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
 
-        **\*\*kwargs**: Every parameter found in save_fig function could also be added if needed.
+        ****kwargs**: Every parameter found in save_fig function could also be added if needed.
+
     """
     net_copy = deepcopy(net)
     traces = []
@@ -228,7 +235,9 @@ def plot_short_circuit_result(
 def plot_timestep_powerflow_result(
         net: pp.pandapowerNet, plot_time: time, filename: str = None, folder: str="plot", **kwargs
     ):
-    """Plot network scheme in plotly figure with powerflow results from one chosen timestep displayed
+    """
+
+    Plot network scheme in plotly figure with powerflow results from one chosen timestep displayed
 
      INPUT:
          **net** (pandapower.pandapowerNet): pandaPower network object with time simulation powerflow results stored.
@@ -245,8 +254,9 @@ def plot_timestep_powerflow_result(
 
          **plot_title** (str, None): Title displayed on the top of the figure.
 
-         **\*\*kwargs**: Every parameter found in save_fig and
-         plot_net_simple_powerflow_result functions could also be added if needed.
+         ****kwargs**: Every parameter found in save_fig and `plot_powerflow_result` functions could also be added
+         if needed.
+
     """
     net_copy = deepcopy(net)
     plot_title = "Powerflow results at " + plot_time.strftime("%Hh%M")
@@ -282,7 +292,7 @@ def plot_timeseries_result(
 
         **folder** (str, "plot"): Folder name where the plotly figure will be stored.
 
-        **\*\*kwargs**: Every parameter found in save_fig function could also be added if needed.
+        ****kwargs**: Every parameter found in save_fig function could also be added if needed.
     """
     fig = Figure()
     for col in data_df.columns:
@@ -302,15 +312,19 @@ def plot_timeseries_result(
 
 def _draw_traces(traces: list, showlegend: bool) -> Figure:
     """
+
     Intern function used to create a plotly figure from a list of trace created by pandasPower using `create_bus_trace`,
     `create_line_trace` and `create_trafo_trace`
 
+
     INPUT:
+
         **traces** (list): List of dicts which correspond to plotly traces.
 
         **showlegend** (bool) : If it is true, legend of traces will be displayed.
 
     OUTPUT:
+
         **figure** (graph_objs._figure.Figure): figure object
 
     """

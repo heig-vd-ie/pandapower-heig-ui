@@ -16,7 +16,22 @@ from pandapower.timeseries.data_sources.frame_data import DFData
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
 
-def parse_grid_from_xlsx(file_path: str) -> pp.pandapowerNet:
+def parse_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
+    """
+    Pay attention to thefollowing points:
+
+        - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui>`_.
+        - Every column marked in green is mandatory.
+        - Every column marked in yellow is mandatory for single phase short-circuit simulation.
+        - Every column marked in red is mandatory to map loads and generators to their timeseries power profile (timeseries powerflow simulation).
+
+
+    INPUT:
+        **file_path** (str): File path of the xlsx file where the power network data are stored.
+
+    OUTPUT:
+        **net** (pandapower.pandapowerNet): Created pandaPower object from xlsx file
+    """
     # Columns which have to be set by default when None value is founded
     default_values: dict = {
         "in_service": True, "g_us_per_km": 0.0, "g0_us_per_km": 0.0, "r0_ohm_per_km": 0.0, "x0_ohm_per_km": 0.0,
@@ -63,14 +78,6 @@ def parse_grid_from_xlsx(file_path: str) -> pp.pandapowerNet:
 
 
 def load_power_profile(file_path: str) -> dict[str, dict[str, pd.DataFrame]]:
-    """
-
-    Args:
-        file_path:
-
-    Returns:
-
-    """
     # Initialize power profiles dictionaries
     power_profile: dict[str, pd.DataFrame] = dict()
     results: dict[str, dict[str, pd.DataFrame]] = dict()
