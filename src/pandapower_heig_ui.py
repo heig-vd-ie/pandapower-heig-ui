@@ -254,7 +254,7 @@ def plot_net_by_zone(net: pp.pandapowerNet, plot_title: str = None, filename: st
             trace_name="Zone {}".format(zone)
         )  # create buses
     fig = _draw_traces(traces=traces, showlegend=True)
-    _save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
+    save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
 
 
 def plot_net_simple_powerflow_result(
@@ -343,7 +343,7 @@ def plot_net_simple_powerflow_result(
         cmax=voltage_range[1], infofunc=bus_info, cbar_title='Bus voltage [pu]'
     )
     fig = _draw_traces(traces, showlegend=False)
-    _save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, width=width, **kwargs)
+    save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, width=width, **kwargs)
 
 
 def plot_net_short_circuit_result(
@@ -377,7 +377,7 @@ def plot_net_short_circuit_result(
         Electric, Viridis). Further explanation are founded in
         `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
 
-        **kwargs**: Every parameter found in _save_fig function could also be added if needed.
+        **kwargs**: Every parameter found in save_fig function could also be added if needed.
     """
     net_copy = deepcopy(net)
     traces = []
@@ -413,7 +413,7 @@ def plot_net_short_circuit_result(
     )
 
     fig = _draw_traces(traces, showlegend=False)
-    _save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
+    save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
 
 
 def plot_net_time_simulation_result(
@@ -435,7 +435,7 @@ def plot_net_time_simulation_result(
 
          **plot_title** (str, None): Title displayed on the top of the figure.
 
-         **kwargs**: Every parameter found in _save_fig and
+         **kwargs**: Every parameter found in save_fig and
          plot_net_simple_powerflow_result functions could also be added if needed.
     """
     net_copy = deepcopy(net)
@@ -460,7 +460,7 @@ def plot_timeseries_result(
     """
 
     INPUT:
-        **data_df (pandas.Dataframe): DataFrame which contains timeseries simulation results which will be plotted
+        **data_df** (pandas.Dataframe): DataFrame which contains timeseries simulation results which will be plotted
 
         **ylabel** (str): Y-axis label
 
@@ -472,7 +472,7 @@ def plot_timeseries_result(
 
         **folder** (str, "plot"): Folder name where the plotly figure will be stored.
 
-        **kwargs: Every parameter found in _save_fig function could also be added if needed.
+        **\*\*kwargs**: Every parameter found in save_fig function could also be added if needed.
     """
     fig = Figure()
     for col in data_df.columns:
@@ -484,7 +484,7 @@ def plot_timeseries_result(
         ))
     x_ticks = list(range(data_df.shape[0]))[::int(data_df.shape[0] / 6)]
     x_ticks_label = _time_to_str(data_df.index)[::int(data_df.shape[0] / 6)]
-    _save_fig(
+    save_fig(
         fig=fig, filename=filename, folder=folder, xlabel= "Time", ylabel=ylabel, plot_title=plot_title,
         x_ticks=(x_ticks,x_ticks_label), show_grid=True, **kwargs
     )
@@ -492,9 +492,9 @@ def plot_timeseries_result(
 
 def _draw_traces(traces: list, showlegend: bool) -> Figure:
     """
-    plots all the traces (which can be created using :func:`create_bus_trace`,
-    :func:`create_line_trace`,
-    :func:`create_trafo_trace`)
+    Intern function used to create a plotly figure from a list of trace created by pandasPower using `create_bus_trace`,
+    `create_line_trace` and `create_trafo_trace`
+     `functions <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
     to `PLOTLY <https://plot.ly/python/>`
 
     INPUT:
@@ -522,7 +522,7 @@ def _draw_traces(traces: list, showlegend: bool) -> Figure:
     return fig
 
 
-def _save_fig(
+def save_fig(
         fig: Figure, filename: str = None, folder: str = "plot", plot_title: str = None,
         xlabel: str = None, ylabel: str = None, 
         x_ticks: tuple[list, list] | None = None,
