@@ -1,6 +1,7 @@
-name: pp_heig_ui
+name: ppheigui
 channels:
   - conda-forge
+  - defaults
 dependencies:
   - _libgcc_mutex=0.1
   - _openmp_mutex=4.5
@@ -261,4 +262,3 @@ dependencies:
       - secretstorage==3.3.3
       - twine==4.0.2
       - webencodings==0.5.1
-prefix: /home/lutomasini/mambaforge/envs/pp_heig_ui
