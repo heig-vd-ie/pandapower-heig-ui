@@ -8,12 +8,12 @@ import pandas as pd
 import pandapower as pp
 import pandapower.shortcircuit as sc
 
-from src.plot import (
+from src.pp_heig_plot import (
     plot_timeseries_result, plot_short_circuit_result, plot_power_network,
     plot_timestep_powerflow_result, _time_to_str
 )
-from src.simulation import (parse_net_from_xlsx, load_power_profile, apply_power_profile, create_output_writer,
-                            run_time_simulation)
+from src.pp_heig_simulation import (parse_net_from_xlsx, load_power_profile, apply_power_profile, create_output_writer,
+                                    run_time_simulation)
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
 
