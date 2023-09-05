@@ -13,6 +13,10 @@ import coloredlogs
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
+
+# TODO: (Deadline -- 2023-09-12) Deploy some useful examples on function that students will use (only those ones).
+#       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
+
 def plot_power_network(net: pp.pandapowerNet, plot_title: str = None, filename: str = None, folder: str = "plot",
              add_zone: bool = True, line_width: int = 3,
              bus_size: int = 20, **kwargs):
@@ -73,45 +77,44 @@ def plot_powerflow_result(
         loading_range: tuple[int] = (0, 100), width: int= 770, **kwargs
         ):
     """
-
     Plot network scheme in plotly figure with powerflow results displayed.
 
+    Parameters
+    ----------
+    net : pandapower.pandapowerNet
+        pandaPower network object with powerflow results stored.
+        Powerflow simulations are described in `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
 
-    INPUT:
-        **net** (pandapower.pandapowerNet): pandaPower network object with powerflow results stored. Powerflow
-        simulations are described in
-        `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
-
-    OPTIONAL:
-        **filename** (str, None): File name under which the plotly figure will be stored (in png format).
+    Other Parameters
+    ----------------
+    filename : str, None
+        File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-
-        **folder** (str, "output"): Folder name where the plotly figure will be stored.
-
-        **plot_title** (str, None): Title displayed on the top of the figure.
-
-        **line_width** (int, 3): Transmission lines drawing width.
-
-        **trafo_width** (int, 7): Transformers drawing width.
-
-        **bus_size** (int, 20): Bus drawing size.
-
-        **voltage_cmap** (str, "jet"): name of a plotly Continuous Color Scales used to display voltage results (Greys,
-        YlGnBu, Greens, YlOrRd, Bluered, RdBu, Reds, Blues, Picnic, Rainbow, Portland, Jet, Hot, Blackbody, Earth,
-        Electric, Viridis). Further explanation are founded in
-        `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
-
-        **loading_cmap** (str, "jet"): name of a plotly Continuous Color Scales used to display line loading results.
-
-        **voltage_range** (tuple[float], (0.85, 1.15)): Voltage range used by the plotly Continuous Color Scales
-        (voltage units are in p.u.).
-
-        **width** (int, 770): Plotly figure width.
-
-        **loading_range** (tuple[float], (0, 100)): Voltage range used by the plotly Continuous Color Scales
-        (loading units are in %).
-
-        ****kwargs**: Every parameter found in save_fig function could also be added if needed.
+    folder : str, "output"
+        Folder name where the plotly figure will be stored.
+    plot_title : str, None
+        Title displayed on the top of the figure.
+    line_width : int, 3
+        Transmission lines drawing width.
+    trafo_width : int, 7
+        Transformers drawing width.
+    bus_size : int, 20
+        Bus drawing size.
+    voltage_cmap : str, "jet"
+        Name of a plotly Continuous Color Scales used to display voltage results
+        (Greys, YlGnBu, Greens, YlOrRd, Bluered, RdBu, Reds, Blues, Picnic, Rainbow, Portland, Jet, Hot, Blackbody,
+        Earth, Electric, Viridis).
+        Further explanation are founded in `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
+    loading_cmap : str, "jet"
+        Name of a plotly Continuous Color Scales used to display line loading results.
+    voltage_range : tuple[float], (0.85, 1.15)
+        Voltage range used by the plotly continuous color scales (voltage units are in p.u.).
+    loading_range : tuple[float], (0, 100)
+        Voltage range used by the plotly continuous color scales (loading units are in %).
+    width : int, 770
+        Plotly figure width.
+    **kwargs
+        Every parameter found in save_fig function could also be added if needed.
 
     """
     net_copy = deepcopy(net)
@@ -164,35 +167,32 @@ def plot_short_circuit_result(
         cmap: str = "jet", **kwargs
     ):
     """
+    Plot network scheme in plotly figure with short-circuit results displayed.
 
-    Plot network scheme in plotly figure with short-circuit results displayed
-
-
-    INPUT:
-        **net** (pandapower.pandapowerNet): pandaPower network object with short-circuit results stored. Short-circuit
-        simulations are described in
-        `pandaPower short-circuit docs <https://pandapower.readthedocs.io/en/v2.0.1/shortcircuit.html>`_.
-
-    OPTIONAL:
-        **filename** (str, None): File name under which the plotly figure will be stored (in png format).
+    Parameters
+    ----------
+    net : pandapower.pandapowerNet
+        pandaPower network object with short-circuit results stored.
+        Short-circuit simulations are described in `pandaPower short-circuit docs <https://pandapower.readthedocs.io/en/v2.0.1/shortcircuit.html>`_.
+    filename : str, None
+        File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-
-        **folder** (str, "plot"): Folder name where the plotly figure will be stored.
-
-        **plot_title** (str, None): Title displayed on the top of the figure
-
-        **line_width** (int, 3): Transmission lines drawing width.
-
-        **trafo_width** (int, 7): Transformers drawing width.
-
-        **bus_size** (int, 20): Bus drawing size.
-
-        **cmap** (str, "jet"): name of a plotly Continuous Color Scales used to display short-circuit results (Greys,
-        YlGnBu, Greens, YlOrRd, Bluered, RdBu, Reds, Blues, Picnic, Rainbow, Portland, Jet, Hot, Blackbody, Earth,
-        Electric, Viridis). Further explanation are founded in
-        `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
-
-        ****kwargs**: Every parameter found in save_fig function could also be added if needed.
+    folder : str, "output"
+        Folder name where the plotly figure will be stored.
+    plot_title : str, None
+        Title displayed on the top of the figure.
+    line_width : int, 3
+        Transmission lines drawing width.
+    trafo_width : int, 7
+        Transformers drawing width.
+    bus_size : int, 20
+        Bus drawing size.
+    cmap : str, "jet"
+        Name of a plotly Continuous Color Scales used to display short-circuit results (Greys, YlGnBu, Greens, YlOrRd,
+        Bluered, RdBu, Reds, Blues, Picnic, Rainbow, Portland, Jet, Hot, Blackbody, Earth, Electric, Viridis).
+        Further explanation are founded in `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
+    **kwargs
+        Every parameter found in save_fig function could also be added if needed.
 
     """
     net_copy = deepcopy(net)
@@ -236,26 +236,30 @@ def plot_timestep_powerflow_result(
         net: pp.pandapowerNet, plot_time: time, filename: str = None, folder: str="plot", **kwargs
     ):
     """
+    Plot network scheme in plotly figure with powerflow results from one chosen timestep displayed.
 
-    Plot network scheme in plotly figure with powerflow results from one chosen timestep displayed
+    Parameters
+    ----------
+    net : pandapower.pandapowerNet
+        pandaPower network object with time simulation powerflow results stored.
+        Powerflow simulations are described in `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+    plot_time : datetime.time
+        Timestep used to plot results.
 
-     INPUT:
-         **net** (pandapower.pandapowerNet): pandaPower network object with time simulation powerflow results stored.
-         Powerflow simulations are described in
-         `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+    Other Parameters
+    ----------------
+    filename : str, None
+        File name under which the plotly figure will be stored (in `png` format).
+        If this parameter is not filled, the function will only display the figure without saving it.
+    folder : str, "plot"
+        Folder name where the plotly figure will be stored.
+    plot_title: str, None
+        Title displayed on the top of the figure.
+    **kwargs
+        Every parameter found in save_fig and `plot_powerflow_result` functions could also be added if needed.
 
-         **plot_time** (datetime.time): Timestep used to plot results
-
-     OPTIONAL:
-         **filename** (str, None): File name under which the plotly figure will be stored (in png format).
-         If this parameter is not filled, the function will only display the figure without saving it.
-
-         **folder** (str, "plot"): Folder name where the plotly figure will be stored.
-
-         **plot_title** (str, None): Title displayed on the top of the figure.
-
-         ****kwargs**: Every parameter found in save_fig and `plot_powerflow_result` functions could also be added
-         if needed.
+    Returns
+    -------
 
     """
     net_copy = deepcopy(net)
@@ -273,26 +277,33 @@ def plot_timestep_powerflow_result(
         log.error("PandaPower network does not contain time simulation powerflow results")
 
 
-def plot_timeseries_result(
-        data_df: pd.DataFrame, ylabel:str, plot_title: str = None, filename: str = None, folder: str="plot",
-        **kwargs
-    ):
+def plot_timeseries_result(data_df: pd.DataFrame, ylabel:str, plot_title: str = None,
+                           filename: str = None, folder: str="plot", **kwargs):
     """
+    This function takes a pandas `DataFrame` as input and plots the timeseries of each column in the DataFrame.
+    It first creates a plotly figure object.
+    Then, it iterates over the columns of the DataFrame and adds a scatter plot for each column.
+    The hover template of each scatter plot is customized to show the column name, the y-value, and the time for each
+    point.
 
-    INPUT:
-        **data_df** (pandas.Dataframe): DataFrame which contains timeseries simulation results which will be plotted
+    Parameters
+    ----------
+    data_df : pandas.Dataframe
+        DataFrame which contains timeseries simulation results which will be plotted.
+    ylabel :
+        `y`-axis label
 
-        **ylabel** (str): Y-axis label
+    Other Parameters
+    ----------------
+    plot_title : str, None
+        Title displayed on the top of the figure.
+    filename : str, None
+        File name under which the plotly figure will be stored (in `png` format).
+    folder : str, "plot_folder"
+        Folder name where the plotly figure will be stored.
+    **kwargs :
+        Every parameter found in save_fig function could also be added if needed.
 
-    OPTIONAL:
-        **plot_title** (str, None):  Title displayed on the top of the figure.
-
-        **filename** (str, None): File name under which the plotly figure will be stored (in png format).
-         If this parameter is not filled, the function will only display the figure without saving it.
-
-        **folder** (str, "plot"): Folder name where the plotly figure will be stored.
-
-        ****kwargs**: Every parameter found in save_fig function could also be added if needed.
     """
     fig = Figure()
     for col in data_df.columns:
@@ -312,23 +323,22 @@ def plot_timeseries_result(
 
 def _draw_traces(traces: list, showlegend: bool) -> Figure:
     """
-
     Intern function used to create a plotly figure from a list of trace created by pandasPower using `create_bus_trace`,
-    `create_line_trace` and `create_trafo_trace`
+    `create_line_trace` and `create_trafo_trace`.
 
+    Parameters
+    ----------
+    traces : list
+        List of dicts which correspond to plotly traces.
+    showlegend : bool
+        If it is true, legend of traces will be displayed.
 
-    INPUT:
-
-        **traces** (list): List of dicts which correspond to plotly traces.
-
-        **showlegend** (bool) : If it is true, legend of traces will be displayed.
-
-    OUTPUT:
-
-        **figure** (graph_objs._figure.Figure): figure object
+    Returns
+    -------
+    figure : graph_objs._figure.Figure
+        The figure object is returned.
 
     """
-
     fig = Figure(data=traces,
                  layout=Layout(
                      showlegend=showlegend,
@@ -353,47 +363,49 @@ def save_fig(
         legend_size: int = 12, tick_size: int = 12, axis_title_size: int = 12,
         title_size: int = 15, show_grid: bool = False, show_fig: bool = True
     ):
-    """Intern function used to format plotly layout, save and display figure
+    """
+    Intern function used to format plotly layout, save and display figure.
 
-    INPUT:
-        **fig** (graph_objs._figure.Figure):
+    Parameters
+    ----------
+    fig : graph_objs._figure.Figure
 
-    OPTIONAL:
-        **filename** (str, None): File name under which the plotly figure will be stored (in png format).
-        If this parameter is not filled, the function will only display the figure without saving it.
-
-        **folder** (str, "plot"): Folder name where the plotly figure will be stored.
-
-        **plot_title** (str, None): Title displayed on the top of the figure.
-
-        **xlabel** (str, None): X-axis label.
-
-        **ylabel** (str, None): Y-axis label.
-
-        **x_ticks** (tuple[list, list], None): A pair of tick values and tick label for displaying x-axis.
-
-        **y_ticks** (tuple[list, list], None): A pair of tick values and tick label for displaying y-axis.
-
-        **width** (int, 680): Figure width (in pixels).
-
-        **height** (int, 400): Figure height (in pixels).
-
-        **title_x** (float, 0.5): Figure title x-axis location.
-
-        **title_y** (float, 0.97): Figure title Y-axis location.
-
-        **legend_size** (int, 12): Legends characters size.
-
-        **tick_size** (int, 12): Ticks characters size.
-
-        **axis_title_size** (int, 12): Axis title characters size.
-
-        **title_size** (int, 15): Figure title characters size.
-
-        **show_grid** (bool, False): If it is True, add grid to the figure.
-
-        **show_fig** (bool, True): If it is True, display figure in Jupyter notebook (usage with a .py file is not
-        implemented).
+    Other Parameters
+    ----------------
+    filename : str, None
+        File name under which the plotly figure will be stored (in `.png` format).
+    folder : str, "plot"
+        Folder name where the plotly figure will be stored.
+    plot_title : str, None
+        Title displayed on the top of the figure.
+    xlabel : str, None
+        `x`-axis label
+    ylabel : str, None
+        `y`-axis label
+    x_ticks : tuple[list, list], None
+        A pair of tick values and tick label for displaying `x`-axis.
+    y_ticks : tuple[list, list], None
+        A pair of tick values and tick label for displaying `y`-axis.
+    width : int, 680
+        Figure width (in pixels).
+    height : int, 400
+        Figure height (in pixels).
+    title_x : float, 0.5
+        Figure title `x`-axis location.
+    title_y : float, 0.97
+        Figure title `y`-axis location.
+    legend_size : int, 12
+        Legends characters size.
+    tick_size : int, 12
+        Ticks characters size.
+    axis_title_size : int, 12
+        Axis title characters size.
+    title_size : int, 15
+        Figure title characters size.
+    show_grid : bool, False
+        If it is `True`, add grid to the figure.
+    show_fig : bool, True
+        If it is `True`, display figure in Jupyter notebook (usage with a `.py` file is not implemented).
 
     """
     fig.update_layout(
@@ -431,13 +443,18 @@ def save_fig(
         fig.show()
 
 def _bold(string: str | None) -> str | None:
-    """Intern function to apply bold style to strings
+    """
+    Internal function to apply bold style to strings.
 
-    INPUT:
-    **string** (str | None): input string.
+    Parameters
+    ----------
+    string : str | None
+        Input string.
 
-    OUTPUT:
-    **bold_string** (str | None): input string with bold style applied.
+    Returns
+    -------
+    bold_string : str | None
+        Input string with bold style applied.
 
     """
     if isinstance(string, str):
@@ -447,12 +464,17 @@ def _bold(string: str | None) -> str | None:
 
 def _time_to_str(time_stamps: [time | datetime | list | tuple | pd.Index | pd.Series]) -> str | list[str] | None:
     """
-    Intern function used to convert datetime objects in wanted string format (i.e. "12H00")
-    INPUT:
-    **time_stamps** (datetime.time | datetime.datetime | list | tuple | pandas.Index | pandas.Series): Input datetime.
+    Internal function used to convert datetime objects in wanted string format (i.e. "12H00").
 
-    OUTPUT:
-    **str_time_stamps** (str | list[str] | None): Datetime objects in wanted string format
+    Parameters
+    ----------
+    time_stamps : datetime.time | datetime.datetime | list | tuple | pandas.Index | pandas.Series
+        Input datetime.
+
+    Returns
+    -------
+    str_time_stamps : str | list[str] | None
+        Datetime objects in wanted string format.
 
     """
     if isinstance(time_stamps, (time, datetime)):
