@@ -9,7 +9,7 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('../src'))
 
-project = 'pandaPower HEIG-VD user interface'
+project = 'pandapower HEIG-VD user interface'
 copyright = '2023, HEIG-VD IE'
 author = 'HEIG-VD IE'
 release = '1.0.0'
@@ -20,8 +20,15 @@ release = '1.0.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
-    'sphinx.ext.napoleon'
+    'sphinx.ext.napoleon',
+    'myst_parser'
 ]
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
+}
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

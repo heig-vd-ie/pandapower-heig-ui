@@ -1,11 +1,11 @@
-src package
-===========
+=============================================
+Welcome to pandapower package pp_heig package
+=============================================
 
-Submodules
----------------
+
 
 pp_heig_plot
----------------
+------------
 
 .. automodule:: pp_heig_plot
    :members:
@@ -13,7 +13,7 @@ pp_heig_plot
    :show-inheritance:
 
 pp_heig_simulation
----------------------
+------------------
 
 .. automodule:: pp_heig_simulation
    :members:
