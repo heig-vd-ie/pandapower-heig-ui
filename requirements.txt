@@ -54,8 +54,14 @@ scipy
 sip
 six
 snowballstemmer
-Sphinx
+sphinx
+jupytext
+nbsphinx
+myst-parser
 sphinx-rtd-theme
+sphinx-book-theme
+piccolo-theme
+sphinx-copybutton
 sphinxcontrib-applehelp
 sphinxcontrib-devhelp
 sphinxcontrib-htmlhelp

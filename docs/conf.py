@@ -43,6 +43,13 @@ extensions = [
     'myst_parser'
 ]
 
+
+# Use language set by highlight directive if no language is set by role
+inline_highlight_respect_highlight = False
+
+# Use language set by highlight directive if no role is set
+inline_highlight_literals = False
+
 source_suffix = {
     '.rst': 'restructuredtext',
     '.txt': 'markdown',
@@ -64,8 +71,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # More themes can be found there: https://sphinx-themes.org/#themes
 # html_theme = 'sphinx_rtd_theme'
 # html_theme = 'alabaster'
-# html_theme = 'sphinx_book_theme'
-html_theme = 'piccolo_theme'
+html_theme = 'sphinx_book_theme'
+# html_theme = 'piccolo_theme'
 html_theme_options = {
     # 'logo_only': True,
     # 'display_version': True,

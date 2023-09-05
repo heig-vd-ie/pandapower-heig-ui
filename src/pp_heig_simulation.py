@@ -18,12 +18,14 @@ coloredlogs.install(level="INFO")
 
 def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
     """
-    Create a pandaPower network object using data stored in a xlsx file. Pay attention to the following points:
+    Create a pandapower network object using data stored in a xlsx file. Pay attention to the following points:
 
-        - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
+        - Xlsx file template should be the one provided in the `package repository
+        <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
         - Every column marked in green is mandatory.
         - Every column marked in yellow is mandatory for single phase short-circuit simulation.
-        - Every column marked in red is mandatory to map loads and generators to their timeseries power profile (timeseries powerflow simulation).
+        - Every column marked in red is mandatory to map loads and generators to their timeseries power profile
+        (timeseries powerflow simulation).
 
 
     INPUT:
