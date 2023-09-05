@@ -3,20 +3,27 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-=============================================
-pandapowerHEIG user interface's documentation
-=============================================
+pandapowerHEIG user interface's
+==================================
+
+What is pandapowerHEIG?
+++++++++++++++++++++++++
+This package is built on top of **panda**power `library <https://pandapower.readthedocs.io/en/v2.13.1/index.html>`_.
+It has been developed help students using simple functions in order to create simple power system models.
+
+Please refer to the main
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-      docs/modules
-      docs/mymarkdown.md
-      docs/mymarkdown2.md
 
-##################
+
+   markdowntest
+   api
+   modules
+
 Indices and tables
-##################
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
