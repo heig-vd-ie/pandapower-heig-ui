@@ -1,8 +1,7 @@
-SRC
-===
+pandapower HEIG-VD IE Modules
+==============================
 
 .. toctree::
    :maxdepth: 4
-   :caption: Source
 
    src

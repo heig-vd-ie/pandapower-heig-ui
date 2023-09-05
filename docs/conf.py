@@ -70,21 +70,23 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for a list of builtin themes
 # More themes can be found there: https://sphinx-themes.org/#themes
 # html_theme = 'sphinx_rtd_theme'
-# html_theme = 'alabaster'
-html_theme = 'sphinx_book_theme'
+# html_theme = 'sphinx_book_theme'
+# html_theme = 'sphinx_material'
 # html_theme = 'piccolo_theme'
-html_theme_options = {
-    # 'logo_only': True,
-    # 'display_version': True,
-    # 'prev_next_buttons_location': 'bottom',
-    # 'style_external_links': True,
-    # Toc options
-    # 'collapse_navigation': False,
-    # 'sticky_navigation': False,
-    # 'navigation_depth': 3,
-    # 'includehidden': True,
-    # 'titles_only': False
-}
+# html_theme = 'furo'
+html_theme = 'pydata_sphinx_theme'
+# html_theme_options = {
+#     'logo_only': True,
+#     'display_version': True,
+#     'prev_next_buttons_location': 'bottom',
+#     'style_external_links': True,
+#     Toc options
+#     'collapse_navigation': False,
+#     'sticky_navigation': False,
+#     'navigation_depth': 3,
+#     'includehidden': True,
+#     'titles_only': False
+# }
 # To generate a GitHub link into your SPHINX documentation:
 # https://stackoverflow.com/questions/62904172/how-do-i-replace-view-page-source-with-edit-on-github-links-in-sphinx-rtd-th
 # html_context = {

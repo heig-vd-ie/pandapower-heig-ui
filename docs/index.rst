@@ -11,15 +11,12 @@ What is pandapowerHEIG?
 This package is built on top of **panda**power `library <https://pandapower.readthedocs.io/en/v2.13.1/index.html>`_.
 It has been developed help students using simple functions in order to create simple power system models.
 
-Please refer to the main
+Please refer to the main GitHub repo for this `project <https://github.com/heig-vd-iese/rht>`_.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
 
-
-   markdowntest
-   api
    modules
 
 Indices and tables

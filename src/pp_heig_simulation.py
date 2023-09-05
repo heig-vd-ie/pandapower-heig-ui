@@ -27,14 +27,18 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
         - Every column marked in red is mandatory to map loads and generators to their timeseries power profile
         (timeseries powerflow simulation).
 
+    Parameters
+    ----------
+    file_path : str
+        File path of the xlsx file where the power network data are stored.
 
-    INPUT:
-        **file_path** (str): File path of the xlsx file where the power network data are stored.
-
-    OUTPUT:
-        **net** (pandapower.pandapowerNet): Created pandaPower object from xlsx file
+    Returns
+    -------
+    net : pandapower.pandapowerNet
+        Created pandaPower object from xlsx file
 
     """
+
     # Columns which have to be set by default when None value is founded
     default_values: dict = {
         "in_service": True, "g_us_per_km": 0.0, "g0_us_per_km": 0.0, "r0_ohm_per_km": 0.0, "x0_ohm_per_km": 0.0,
@@ -86,14 +90,22 @@ def load_power_profile_form_xlsx(file_path: str) -> dict[str, dict[str, pd.DataF
     pandaPower network for timeseries simulations. The function also interpolate power profiles in order they all have
     the same time steps. Finally, the function is only able to load one-day power profiles.
 
-    INPUT:
-        **file_path** (str): File path of the xlsx file where the power network data are stored.
+    Parameters -- output
+    --------------------
+    file_path : str
+        File path of the xlsx file where the power network data are stored.
 
-    OUTPUT:
-        **power_profile** (dict[str, dict[str, pd.DataFrame]]): Power profiles stored in dictionary of pandas DataFrame
-        format
+    Returns -- output
+    -----------------
+    power_profile : dict[str, dict[str, pd.DataFrame]]
+        Power profiles stored in dictionary of pandas DataFrame format.
+
+    Example
+    -------
+    load_power_profile_form_xlsx(file_path=profile_file_path)
 
     """
+
     # Initialize power profiles dictionaries
     power_profile: dict[str, pd.DataFrame] = dict()
     results: dict[str, dict[str, pd.DataFrame]] = dict()
@@ -164,7 +176,6 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
     DataFrame found in power_profiles input. If the network already contains controllers linked to the equipment input,
     the function will first erase them. In order to apply wanted power profiles to wanted element, use profile_mapping
     column found in load and sgen equipments.
-
 
     INPUT:
         **net** (pandapower.pandapowerNet): pandaPower network object.
@@ -242,7 +253,6 @@ def run_time_simulation(
     """
     Run time simulation power flow to a pandaPower network where power profile has been applied. Then, the results
     will be transformed in a dictionary of DataFrame and saved in a xlsx file if wanted.
-
 
     INPUT:
         **net** (pandapower.pandapowerNet): pandaPower network object containing a

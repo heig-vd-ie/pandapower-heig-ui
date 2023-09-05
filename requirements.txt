@@ -60,6 +60,9 @@ nbsphinx
 myst-parser
 sphinx-rtd-theme
 sphinx-book-theme
+furo
+pydata-sphinx-theme
+sphinx-material
 piccolo-theme
 sphinx-copybutton
 sphinxcontrib-applehelp
