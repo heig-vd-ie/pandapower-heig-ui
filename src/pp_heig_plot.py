@@ -17,9 +17,45 @@ coloredlogs.install(level="INFO")
 # TODO: (Deadline -- 2023-09-12) Deploy some useful examples on function that students will use (only those ones).
 #       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
 
-def plot_power_network(net: pp.pandapowerNet, plot_title: str = None, filename: str = None, folder: str = "plot",
-             add_zone: bool = True, line_width: int = 3,
-             bus_size: int = 20, **kwargs):
+def plot_power_network(
+    net: pp.pandapowerNet, filename: str = None, folder: str = "plot", plot_title: str = None,
+    line_width: int = 3, trafo_width: int =7, bus_size: int = 20, add_zone: bool = True,  **kwargs
+):
+    """
+    Plot the network scheme in a Plotly figure, displaying zones if wanted. If the network does not contain geo data,
+    it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
+
+     Note that if the network does not contain geo data, it will be automatically created using the
+     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
+     network is meshed.
+
+    Parameters
+    ----------
+    net : pandapower.pandapowerNet
+        pandaPower network object with powerflow results stored.
+        Powerflow simulations are described in `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+
+    Other Parameters
+    ----------------
+    filename : str, None
+        File name under which the plotly figure will be stored (in `png` format).
+        If this parameter is not filled, the function will only display the figure without saving it.
+    folder : str, "output"
+        Folder name where the plotly figure will be stored.
+    plot_title : str, None
+        Title displayed on the top of the figure.
+    line_width : int, 3
+        Transmission lines drawing width.
+    trafo_width : int, 7
+        Transformers drawing width.
+    bus_size : int, 20
+        Bus drawing size.
+    add_zone : bool, True
+        If this parameter is set to true, buses will be colored based on the zone parameters.
+    **kwargs
+        Every parameter found in save_fig function could also be added if needed.
+
+    """
     net_copy = deepcopy(net)
     colors = ['b', 'g', 'r', 'c', 'm', 'k', 'w']
     # Generate bus geodata if needed
@@ -38,7 +74,7 @@ def plot_power_network(net: pp.pandapowerNet, plot_title: str = None, filename: 
         data=net_copy.trafo.name + '<br>' + net_copy.trafo.sn_mva.astype(str) + ' MVA'
     )
     traces += pplotly.create_trafo_trace(
-        net_copy, trafos=net_copy.trafo.index, width=int(2.5*line_width), trace_name="Transformers",
+        net_copy, trafos=net_copy.trafo.index, width=int(trafo_width), trace_name="Transformers",
         infofunc = trafo_info
     )
     # create ext_grid trace
@@ -77,7 +113,13 @@ def plot_powerflow_result(
         loading_range: tuple[int] = (0, 100), width: int= 770, **kwargs
         ):
     """
-    Plot network scheme in plotly figure with powerflow results displayed.
+    Plot the network scheme in a Plotly figure, displaying the power flow results. The nodes are colored based on the
+    resulting voltage level in p.u., the lines and transformers are colored based on their loading in %.
+
+     Note that if the network does not contain geo data, it will be automatically created using the
+     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
+     network is meshed.
+
 
     Parameters
     ----------
@@ -167,13 +209,18 @@ def plot_short_circuit_result(
         cmap: str = "jet", **kwargs
     ):
     """
-    Plot network scheme in plotly figure with short-circuit results displayed.
+    Plot the network scheme in a Plotly figure, displaying short-circuit results. The lines and transformers are
+    colored based on short-circuit in kA.
+
+     Note that if the network does not contain geo data, it will be automatically created using the
+     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
+     network is meshed.
 
     Parameters
     ----------
     net : pandapower.pandapowerNet
         pandaPower network object with short-circuit results stored.
-        Short-circuit simulations are described in `pandaPower short-circuit docs <https://pandapower.readthedocs.io/en/v2.0.1/shortcircuit.html>`_.
+        Short-circuit simulations are described in `pandaPower short-circuit docs <https://pandapower.readthedocs.io/en/v2.13.1/shortcircuit.html>`_.
     filename : str, None
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
@@ -232,11 +279,16 @@ def plot_short_circuit_result(
     save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
 
 
-def plot_timestep_powerflow_result(
+def plot_timestamps_powerflow_result(
         net: pp.pandapowerNet, plot_time: time, filename: str = None, folder: str="plot", **kwargs
     ):
     """
-    Plot network scheme in plotly figure with powerflow results from one chosen timestep displayed.
+    Plot network scheme in plotly figure, displaying the power flow results from a chosen timestamps. The function
+    filter results from timeseries simulation to keep the wanted timestamps then run "plot_powerflow_result" function.
+
+     Note that if the network does not contain geo data, it will be automatically created using the
+     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
+     network is meshed.
 
     Parameters
     ----------
@@ -277,23 +329,25 @@ def plot_timestep_powerflow_result(
         log.error("PandaPower network does not contain time simulation powerflow results")
 
 
-def plot_timeseries_result(data_df: pd.DataFrame, ylabel:str, plot_title: str = None,
-                           filename: str = None, folder: str="plot", **kwargs):
+def plot_timeseries_result(
+    data_df: pd.DataFrame, ylabel:str, plot_title: str = None,
+    filename: str = None, folder: str="plot", **kwargs
+):
     """
-    This function takes a pandas `DataFrame` as input and plots the timeseries of each column in the DataFrame.
+    This function takes a pandas `DataFrame` as input and plots the timeseries of each column.
     It first creates a plotly figure object.
-    Then, it iterates over the columns of the DataFrame and adds a scatter plot for each column.
-    The hover template of each scatter plot is customized to show the column name, the y-value, and the time for each
+    Then, it iterates over the columns of the `DataFrame` and adds a line plot for each column.
+    The legend template of each line is customized to show the column name, the y-value, and the time for each
     point.
 
     Parameters
     ----------
-    data_df : pandas.Dataframe
-        DataFrame which contains timeseries simulation results which will be plotted.
+    data_df : pandas.DataFrame
+        DataFrame containing timeseries simulation results which will be plotted.
     ylabel :
         `y`-axis label
 
-    Other Parameters
+    Other parameters
     ----------------
     plot_title : str, None
         Title displayed on the top of the figure.
@@ -357,8 +411,8 @@ def _draw_traces(traces: list, showlegend: bool) -> Figure:
 def save_fig(
         fig: Figure, filename: str = None, folder: str = "plot", plot_title: str = None,
         xlabel: str = None, ylabel: str = None, 
-        x_ticks: tuple[list, list] | None = None,
-        y_ticks: tuple[list, list] | None = None,
+        x_ticks: tuple[list, list] = None,
+        y_ticks: tuple[list, list] = None,
         width: int = 680, height: int = 400, title_x: float = 0.5, title_y: float = 0.97,
         legend_size: int = 12, tick_size: int = 12, axis_title_size: int = 12,
         title_size: int = 15, show_grid: bool = False, show_fig: bool = True
@@ -379,9 +433,9 @@ def save_fig(
     plot_title : str, None
         Title displayed on the top of the figure.
     xlabel : str, None
-        `x`-axis label
+        `x`-axis label.
     ylabel : str, None
-        `y`-axis label
+        `y`-axis label.
     x_ticks : tuple[list, list], None
         A pair of tick values and tick label for displaying `x`-axis.
     y_ticks : tuple[list, list], None

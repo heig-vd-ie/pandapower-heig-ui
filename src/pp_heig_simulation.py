@@ -20,12 +20,12 @@ coloredlogs.install(level="INFO")
 #       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
 def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
     """
-    Create a pandapower network object using data stored in a xlsx file. Pay attention to the following points:
+    Create a pandaPower network object using data stored in a xlsx file. Pay attention to the following points:
 
-        - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
-        - Every column marked in green is mandatory.
-        - Every column marked in yellow is mandatory for single phase short-circuit simulation.
-        - Every column marked in red is mandatory to map loads and generators to their timeseries power profile timeseries powerflow simulation.
+    - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
+    - Every column marked in green is mandatory.
+    - Every column marked in yellow is mandatory for single phase short-circuit simulation.
+    - Every column marked in red is mandatory to map loads and generators to their timeseries power profile timeseries powerflow simulation.
 
     Parameters
     ----------
@@ -90,11 +90,14 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
     return net
 
 
-def load_power_profile_form_xlsx(file_path: str) -> dict[str, dict[str, pd.DataFrame]]:
+def load_power_profile_form_xlsx(file_path: str) -> \
+        (dict)[str, dict[str, pd.DataFrame]]:
     """
     Load power profile from a xlsx file and return a dictionary of pandas DataFrame ready to be applied to a
     pandaPower network for timeseries simulations. The function also interpolate power profiles in order they all have
-    the same time steps. Finally, the function is only able to load one-day power profiles.
+    the same time steps.
+
+     Note that the function is only able to load one-day power profiles.
 
     Parameters
     ----------
@@ -181,9 +184,11 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
     a `pandapower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
     The function creates `pandapower Controller <https://pandapower.readthedocs.io/en/v2.13.1/control/controller.html#constcontrol>`_
     for each DataFrame found in power_profiles input.
-    If the network already contains controllers linked to the equipment input, the function will first erase them.
-    In order to apply wanted power profiles to wanted element, use `profile_mapping` column found in load and `sgen`
-    equipments.
+
+     Note taht if the network already contains controllers linked to the equipment input, the function will first erase them.
+     In order to apply wanted power profiles to wanted element, use `profile_mapping` column found in load and `sgen`
+     equipments.
+
 
     Parameters
     ----------
@@ -240,7 +245,12 @@ def create_output_writer(net: pp.pandapowerNet, add_results: [list[str] | str] =
     """
     Define which results will be stored as output.
     The function create a `pandapower OutputWriter <https://pandapower.readthedocs.io/en/v2.13.1/timeseries/output_writer.html>`_
-    with the following default outputs `res_bus.vm_pu`, `res_line.loading_percent` and `res_trafo.loading_percent`.
+    with the following default outputs:
+
+    - `res_bus.vm_pu`
+    - `res_line.loading_percent`
+    - `res_trafo.loading_percent`
+
     Other needed outputs could be added using add_results parameters.
 
     Parameters
@@ -272,8 +282,8 @@ def create_output_writer(net: pp.pandapowerNet, add_results: [list[str] | str] =
 def run_time_simulation(net: pp.pandapowerNet, output_filename: str = None,
                         folder: str = r"output") -> dict[str, pd.DataFrame]:
     """
-    Run a time simulation power flow to a pandapower network where power profile has been applied.
-    Then, the results will be transformed in a dictionary of DataFrame and saved in a xlsx file if wanted.
+    Run a time-series power flow on a pandaPower network where power profiles has been applied to the load and the
+    genrators. The results will then be converted into a dictionary of `DataFrames` and saved to an Excel file if desired.
 
     Parameters
     ----------
