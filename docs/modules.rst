@@ -1,7 +1,9 @@
-pandapower HEIG-VD IE Modules
+pandapower HEIG-VD UI Modules
 ==============================
 
 .. toctree::
    :maxdepth: 4
 
-   src
+   pp_heig_plot
+   pp_heig_simulation
+

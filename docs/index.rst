@@ -3,12 +3,13 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-pandapowerHEIG user interface's
-==================================
+pandapowerHEIG user interface
+==============================
 
-What is pandapowerHEIG?
-++++++++++++++++++++++++
-This package is built on top of **panda**power `library <https://pandapower.readthedocs.io/en/v2.13.1/index.html>`_.
+What is pandapowerHEIG user interface?
+++++++++++++++++++++++++++++++++++++++
+
+This package is built on top of pandaPower `library <https://pandapower.readthedocs.io/en/v2.13.1/index.html>`_ .
 It has been developed help students using simple functions in order to create simple power system models.
 
 Please refer to the main GitHub repo for this `project <https://github.com/heig-vd-iese/rht>`_.
