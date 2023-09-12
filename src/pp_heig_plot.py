@@ -33,14 +33,14 @@ def plot_power_network(
     ----------
     net : pandapower.pandapowerNet
         pandaPower network object with powerflow results stored.
-        Powerflow simulations are described in `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+        Powerflow simulations are described in `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.13.1/powerflow.html>`_.
 
     Other Parameters
     ----------------
     filename : str, None
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "output"
+    folder : str, "plot"
         Folder name where the plotly figure will be stored.
     plot_title : str, None
         Title displayed on the top of the figure.
@@ -107,7 +107,7 @@ def plot_power_network(
 
 
 def plot_powerflow_result(
-        net: pp.pandapowerNet, filename: str = None, folder: str="output", plot_title: str=None,
+        net: pp.pandapowerNet, filename: str = None, folder: str="plot", plot_title: str=None,
         line_width: int = 3, trafo_width: int =7, bus_size: int = 20, voltage_cmap: str = "jet",
         loading_cmap: str =  "jet", voltage_range: tuple[float] = (0.85, 1.15),
         loading_range: tuple[int] = (0, 100), width: int= 770, **kwargs
@@ -125,14 +125,14 @@ def plot_powerflow_result(
     ----------
     net : pandapower.pandapowerNet
         pandaPower network object with powerflow results stored.
-        Powerflow simulations are described in `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+        Powerflow simulations are described in `pandaPower powerflow docs <https://pandapower.readthedocs.io/en/v2.13.1/powerflow.html>`_.
 
     Other Parameters
     ----------------
     filename : str, None
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "output"
+    folder : str, "plot"
         Folder name where the plotly figure will be stored.
     plot_title : str, None
         Title displayed on the top of the figure.
@@ -221,10 +221,12 @@ def plot_short_circuit_result(
     net : pandapower.pandapowerNet
         pandaPower network object with short-circuit results stored.
         Short-circuit simulations are described in `pandaPower short-circuit docs <https://pandapower.readthedocs.io/en/v2.13.1/shortcircuit.html>`_.
+    Other Parameters
+    ----------------
     filename : str, None
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "output"
+    folder : str, "plot"
         Folder name where the plotly figure will be stored.
     plot_title : str, None
         Title displayed on the top of the figure.
@@ -294,7 +296,7 @@ def plot_timestamps_powerflow_result(
     ----------
     net : pandapower.pandapowerNet
         pandaPower network object with time simulation powerflow results stored.
-        Powerflow simulations are described in `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+        Powerflow simulations are described in `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.13.1/powerflow.html>`_.
     plot_time : datetime.time
         Timestep used to plot results.
 
