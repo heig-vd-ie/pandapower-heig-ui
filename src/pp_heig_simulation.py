@@ -181,7 +181,7 @@ def load_power_profile_form_xlsx(file_path: str) -> \
 def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: dict[str, pd.DataFrame]):
     """
     Apply power profiles stored in dictionary of a pandas `DataFrame` format to a pandapower network in order to perform
-    a `pandapower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.0.1/powerflow.html>`_.
+    a `pandapower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.13.1/powerflow.html>`_.
     The function creates `pandapower Controller <https://pandapower.readthedocs.io/en/v2.13.1/control/controller.html#constcontrol>`_
     for each DataFrame found in power_profiles input.
 
