@@ -305,11 +305,11 @@ def plot_timestamps_powerflow_result(
     filename : str, optional
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "plot", optional
+    folder : str, optional
         Folder name where the plotly figure will be stored.
     plot_title: str, optional
         Title displayed on the top of the figure.
-    **kwargs : dict, optional
+    **kwargs : dict
         Every parameter found in save_fig and `plot_powerflow_result` functions could also be added if needed.
 
     Returns
