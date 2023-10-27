@@ -17,17 +17,13 @@ coloredlogs.install(level="INFO")
 # TODO: (Deadline -- 2023-09-12) Deploy some useful examples on function that students will use (only those ones).
 #       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
 
-def plot_power_network(
-    net: pp.pandapowerNet, filename: str = None, folder: str = "plot", plot_title: str = None,
-    line_width: int = 3, trafo_width: int =7, bus_size: int = 20, add_zone: bool = True,  **kwargs
-):
-    """
-    Plot the network scheme in a Plotly figure, displaying zones if wanted. If the network does not contain geo data,
-    it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
-
-     Note that if the network does not contain geo data, it will be automatically created using the
-     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
-     network is meshed.
+def plot_power_network(net: pp.pandapowerNet, filename: str = None, folder: str = "plot", plot_title: str = None, 
+                       line_width: int = 3, trafo_width: int =7, bus_size: int = 20, add_zone: bool = True,  **kwargs):
+    r"""Plot the network scheme in a Plotly figure, displaying zones if wanted.
+    
+    If the network does not contain geo data, it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
+    Note that if the network does not contain geo data, it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
+    This algorithm does not generate good geo data if the network is meshed.
 
     Parameters
     ----------
@@ -37,22 +33,22 @@ def plot_power_network(
 
     Other Parameters
     ----------------
-    filename : str, None
+    filename : str, None, optional
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "plot"
+    folder : str, "plot", optional
         Folder name where the plotly figure will be stored.
-    plot_title : str, None
+    plot_title : str, None, optional
         Title displayed on the top of the figure.
-    line_width : int, 3
+    line_width : int, 3, optional
         Transmission lines drawing width.
-    trafo_width : int, 7
+    trafo_width : int, 7, optional
         Transformers drawing width.
-    bus_size : int, 20
+    bus_size : int, 20, optional
         Bus drawing size.
-    add_zone : bool, True
+    add_zone : bool, True, optional
         If this parameter is set to true, buses will be colored based on the zone parameters.
-    **kwargs
+    **kwargs : dict
         Every parameter found in save_fig function could also be added if needed.
 
     """
@@ -110,16 +106,12 @@ def plot_powerflow_result(
         net: pp.pandapowerNet, filename: str = None, folder: str="plot", plot_title: str=None,
         line_width: int = 3, trafo_width: int =7, bus_size: int = 20, voltage_cmap: str = "jet",
         loading_cmap: str =  "jet", voltage_range: tuple[float] = (0.85, 1.15),
-        loading_range: tuple[int] = (0, 100), width: int= 770, **kwargs
-        ):
-    """
-    Plot the network scheme in a Plotly figure, displaying the power flow results. The nodes are colored based on the
-    resulting voltage level in p.u., the lines and transformers are colored based on their loading in %.
-
-     Note that if the network does not contain geo data, it will be automatically created using the
-     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
-     network is meshed.
-
+        loading_range: tuple[int] = (0, 100), width: int= 770, **kwargs):
+    r"""Plot the network scheme in a Plotly figure, displaying the power flow results.
+    
+    The nodes are colored based on the resulting voltage level in p.u., the lines and transformers are colored based on their loading in %.
+    Note that if the network does not contain geo data, it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
+    This algorithm does not generate good geo data if the network is meshed.
 
     Parameters
     ----------
@@ -129,35 +121,34 @@ def plot_powerflow_result(
 
     Other Parameters
     ----------------
-    filename : str, None
+    filename : str, None, optional
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "plot"
+    folder : str, "plot", optional
         Folder name where the plotly figure will be stored.
-    plot_title : str, None
+    plot_title : str, None, optional
         Title displayed on the top of the figure.
-    line_width : int, 3
+    line_width : int, 3, optional
         Transmission lines drawing width.
-    trafo_width : int, 7
+    trafo_width : int, 7, optional
         Transformers drawing width.
-    bus_size : int, 20
+    bus_size : int, 20, optional
         Bus drawing size.
-    voltage_cmap : str, "jet"
+    voltage_cmap : str, "jet", optional
         Name of a plotly Continuous Color Scales used to display voltage results
         (Greys, YlGnBu, Greens, YlOrRd, Bluered, RdBu, Reds, Blues, Picnic, Rainbow, Portland, Jet, Hot, Blackbody,
         Earth, Electric, Viridis).
         Further explanation are founded in `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
-    loading_cmap : str, "jet"
+    loading_cmap : str, "jet", optional
         Name of a plotly Continuous Color Scales used to display line loading results.
     voltage_range : tuple[float], (0.85, 1.15)
         Voltage range used by the plotly continuous color scales (voltage units are in p.u.).
     loading_range : tuple[float], (0, 100)
         Voltage range used by the plotly continuous color scales (loading units are in %).
-    width : int, 770
+    width : int, 770, optional
         Plotly figure width.
     **kwargs
         Every parameter found in save_fig function could also be added if needed.
-
     """
     net_copy = deepcopy(net)
     traces = []
@@ -206,43 +197,40 @@ def plot_powerflow_result(
 def plot_short_circuit_result(
         net: pp.pandapowerNet, filename: str=None, folder: str="plot", plot_title:str=None,
         line_width: int = 3, trafo_width: int =7, bus_size: int = 20,
-        cmap: str = "jet", **kwargs
-    ):
-    """
-    Plot the network scheme in a Plotly figure, displaying short-circuit results. The lines and transformers are
-    colored based on short-circuit in kA.
-
-     Note that if the network does not contain geo data, it will be automatically created using the
-     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
-     network is meshed.
+        cmap: str = "jet", **kwargs):
+    r"""Plot the network scheme in a Plotly figure, displaying short-circuit results.
+    
+    The lines and transformers are colored based on short-circuit in kA.
+    Note that if the network does not contain geo data, it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
+    This algorithm does not generate good geo data if the network is meshed.
 
     Parameters
     ----------
     net : pandapower.pandapowerNet
         pandaPower network object with short-circuit results stored.
         Short-circuit simulations are described in `pandaPower short-circuit docs <https://pandapower.readthedocs.io/en/v2.13.1/shortcircuit.html>`_.
+    
     Other Parameters
     ----------------
-    filename : str, None
+    filename : str, None, optional
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "plot"
+    folder : str, optional
         Folder name where the plotly figure will be stored.
-    plot_title : str, None
+    plot_title : str, None, optional
         Title displayed on the top of the figure.
-    line_width : int, 3
+    line_width : int, 3, optional
         Transmission lines drawing width.
-    trafo_width : int, 7
+    trafo_width : int, 7, optional
         Transformers drawing width.
-    bus_size : int, 20
+    bus_size : int, 20, optional
         Bus drawing size.
-    cmap : str, "jet"
+    cmap : str, optional
         Name of a plotly Continuous Color Scales used to display short-circuit results (Greys, YlGnBu, Greens, YlOrRd,
         Bluered, RdBu, Reds, Blues, Picnic, Rainbow, Portland, Jet, Hot, Blackbody, Earth, Electric, Viridis).
         Further explanation are founded in `plotly docs <https://plotly.com/python/builtin-colorscales/?_ga=2.67899217.1309821379.1693317794-265230606.1688628396>`_.
-    **kwargs
+    **kwargs : dict
         Every parameter found in save_fig function could also be added if needed.
-
     """
     net_copy = deepcopy(net)
     traces = []
@@ -282,15 +270,12 @@ def plot_short_circuit_result(
 
 
 def plot_timestamps_powerflow_result(
-        net: pp.pandapowerNet, plot_time: time, filename: str = None, folder: str="plot", **kwargs
-    ):
-    """
-    Plot network scheme in plotly figure, displaying the power flow results from a chosen timestamps. The function
-    filter results from timeseries simulation to keep the wanted timestamps then run "plot_powerflow_result" function.
-
-     Note that if the network does not contain geo data, it will be automatically created using the
-     `igraph library <https://python.igraph.org/en/stable/>`_. This algorithm does not generate good geo data if the
-     network is meshed.
+        net: pp.pandapowerNet, plot_time: time, filename: str = None, folder: str="plot", **kwargs):
+    r"""Plot network scheme in plotly figure, displaying the power flow results from a chosen timestamps.
+    
+    The function filter results from timeseries simulation to keep the wanted timestamps then run "plot_powerflow_result" function.
+    Note that if the network does not contain geo data, it will be automatically created using the `igraph library <https://python.igraph.org/en/stable/>`_.
+    This algorithm does not generate good geo data if the network is meshed.
 
     Parameters
     ----------
@@ -299,7 +284,7 @@ def plot_timestamps_powerflow_result(
         Powerflow simulations are described in `pandaPower time simulation powerflow docs <https://pandapower.readthedocs.io/en/v2.13.1/powerflow.html>`_.
     plot_time : datetime.time
         Timestep used to plot results.
-
+    
     Other Parameters
     ----------------
     filename : str, optional
@@ -311,11 +296,6 @@ def plot_timestamps_powerflow_result(
         Title displayed on the top of the figure.
     **kwargs : dict
         Every parameter found in save_fig and `plot_powerflow_result` functions could also be added if needed.
-
-    Returns
-    -------
-    None
-
     """
     net_copy = deepcopy(net)
     plot_title = "Powerflow results at " + plot_time.strftime("%Hh%M")
@@ -336,12 +316,10 @@ def plot_timeseries_result(
     data_df: pd.DataFrame, ylabel:str, plot_title: str = None,
     filename: str = None, folder: str="plot", **kwargs
 ):
-    """
-    This function takes a pandas `DataFrame` as input and plots the timeseries of each column.
-    It first creates a plotly figure object.
-    Then, it iterates over the columns of the `DataFrame` and adds a line plot for each column.
-    The legend template of each line is customized to show the column name, the y-value, and the time for each
-    point.
+    r"""This function takes a pandas `DataFrame` as input and plots the timeseries of each column.
+    
+    It first creates a plotly figure object. Then, it iterates over the columns of the `DataFrame` and adds a line plot for each column.
+    The legend template of each line is customized to show the column name, the y-value, and the time for each point.
 
     Parameters
     ----------
@@ -356,11 +334,10 @@ def plot_timeseries_result(
         Title displayed on the top of the figure.
     filename : str, optional
         File name under which the plotly figure will be stored (in `png` format).
-    folder : str, "plot_folder"
+    folder : str, "plot_folder", optional
         Folder name where the plotly figure will be stored.
     **kwargs : dict, optional
         Every parameter found in save_fig function could also be added if needed.
-
     """
     fig = Figure()
     for col in data_df.columns:
@@ -379,9 +356,7 @@ def plot_timeseries_result(
 
 
 def _draw_traces(traces: list, showlegend: bool) -> Figure:
-    """
-    Intern function used to create a plotly figure from a list of trace created by pandasPower using `create_bus_trace`,
-    `create_line_trace` and `create_trafo_trace`.
+    r"""Intern function used to create a plotly figure from a list of trace created by pandasPower using `create_bus_trace`, `create_line_trace` and `create_trafo_trace`.
 
     Parameters
     ----------
@@ -394,7 +369,6 @@ def _draw_traces(traces: list, showlegend: bool) -> Figure:
     -------
     figure : graph_objs._figure.Figure
         The figure object is returned.
-
     """
     fig = Figure(data=traces,
                  layout=Layout(
@@ -418,10 +392,8 @@ def save_fig(
         y_ticks: tuple[list, list] = None,
         width: int = 680, height: int = 400, title_x: float = 0.5, title_y: float = 0.97,
         legend_size: int = 12, tick_size: int = 12, axis_title_size: int = 12,
-        title_size: int = 15, show_grid: bool = False, show_fig: bool = True
-    ):
-    """
-    Intern function used to format plotly layout, save and display figure.
+        title_size: int = 15, show_grid: bool = False, show_fig: bool = True):
+    r"""Intern function used to format plotly layout, save and display figure.
 
     Parameters
     ----------
@@ -463,7 +435,6 @@ def save_fig(
         If it is `True`, add grid to the figure.
     show_fig : bool, True, optional
         If it is `True`, display figure in Jupyter notebook (usage with a `.py` file is not implemented).
-
     """
     fig.update_layout(
         font={"size": title_size}, xaxis_title=_bold(xlabel), yaxis_title=_bold(ylabel),
@@ -500,8 +471,7 @@ def save_fig(
         fig.show()
 
 def _bold(string: str | None) -> str | None:
-    """
-    Internal function to apply bold style to strings.
+    r"""Internal function to apply bold style to strings.
 
     Parameters
     ----------
@@ -512,7 +482,6 @@ def _bold(string: str | None) -> str | None:
     -------
     bold_string : str or None
         Input string with bold style applied.
-
     """
     if isinstance(string, str):
         return '<b>' + string + '<b>'
@@ -520,8 +489,7 @@ def _bold(string: str | None) -> str | None:
         return None
 
 def _time_to_str(time_stamps: [time | datetime | list | tuple | pd.Index | pd.Series]) -> str | list[str] | None:
-    """
-    Internal function used to convert datetime objects in wanted string format (i.e. "12H00").
+    r"""Internal function used to convert datetime objects in wanted string format (i.e. "12H00").
 
     Parameters
     ----------
