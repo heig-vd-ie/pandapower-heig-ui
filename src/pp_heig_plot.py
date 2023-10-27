@@ -302,18 +302,19 @@ def plot_timestamps_powerflow_result(
 
     Other Parameters
     ----------------
-    filename : str, None
+    filename : str, optional
         File name under which the plotly figure will be stored (in `png` format).
         If this parameter is not filled, the function will only display the figure without saving it.
-    folder : str, "plot"
+    folder : str, "plot", optional
         Folder name where the plotly figure will be stored.
-    plot_title: str, None
+    plot_title: str, optional
         Title displayed on the top of the figure.
-    **kwargs
+    **kwargs : dict, optional
         Every parameter found in save_fig and `plot_powerflow_result` functions could also be added if needed.
 
     Returns
     -------
+    None
 
     """
     net_copy = deepcopy(net)
@@ -351,13 +352,13 @@ def plot_timeseries_result(
 
     Other parameters
     ----------------
-    plot_title : str, None
+    plot_title : str, optional
         Title displayed on the top of the figure.
-    filename : str, None
+    filename : str, optional
         File name under which the plotly figure will be stored (in `png` format).
     folder : str, "plot_folder"
         Folder name where the plotly figure will be stored.
-    **kwargs :
+    **kwargs : dict, optional
         Every parameter found in save_fig function could also be added if needed.
 
     """
@@ -428,39 +429,39 @@ def save_fig(
 
     Other Parameters
     ----------------
-    filename : str, None
+    filename : str, optional
         File name under which the plotly figure will be stored (in `.png` format).
     folder : str, "plot"
         Folder name where the plotly figure will be stored.
-    plot_title : str, None
+    plot_title : str, optional
         Title displayed on the top of the figure.
-    xlabel : str, None
+    xlabel : str, optional
         `x`-axis label.
-    ylabel : str, None
+    ylabel : str, optional
         `y`-axis label.
-    x_ticks : tuple[list, list], None
+    x_ticks : tuple[list, list], optional
         A pair of tick values and tick label for displaying `x`-axis.
-    y_ticks : tuple[list, list], None
+    y_ticks : tuple[list, list], optional
         A pair of tick values and tick label for displaying `y`-axis.
-    width : int, 680
+    width : int, 680, optional
         Figure width (in pixels).
-    height : int, 400
+    height : int, 400, optional
         Figure height (in pixels).
-    title_x : float, 0.5
+    title_x : float, 0.5, optional
         Figure title `x`-axis location.
-    title_y : float, 0.97
+    title_y : float, 0.97, optional
         Figure title `y`-axis location.
-    legend_size : int, 12
+    legend_size : int, 12, optional
         Legends characters size.
-    tick_size : int, 12
+    tick_size : int, 12, optional
         Ticks characters size.
-    axis_title_size : int, 12
+    axis_title_size : int, 12, optional
         Axis title characters size.
-    title_size : int, 15
+    title_size : int, 15, optional
         Figure title characters size.
-    show_grid : bool, False
+    show_grid : bool, False, optional
         If it is `True`, add grid to the figure.
-    show_fig : bool, True
+    show_fig : bool, True, optional
         If it is `True`, display figure in Jupyter notebook (usage with a `.py` file is not implemented).
 
     """
@@ -504,12 +505,12 @@ def _bold(string: str | None) -> str | None:
 
     Parameters
     ----------
-    string : str | None
+    string : str or None
         Input string.
 
     Returns
     -------
-    bold_string : str | None
+    bold_string : str or None
         Input string with bold style applied.
 
     """
@@ -529,7 +530,7 @@ def _time_to_str(time_stamps: [time | datetime | list | tuple | pd.Index | pd.Se
 
     Returns
     -------
-    str_time_stamps : str | list[str] | None
+    str_time_stamps : str or list[str] or None
         Datetime objects in wanted string format.
 
     """

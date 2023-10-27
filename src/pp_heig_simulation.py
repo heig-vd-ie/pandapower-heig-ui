@@ -185,7 +185,7 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
     The function creates `pandapower Controller <https://pandapower.readthedocs.io/en/v2.13.1/control/controller.html#constcontrol>`_
     for each DataFrame found in power_profiles input.
 
-     Note taht if the network already contains controllers linked to the equipment input, the function will first erase them.
+     Note that if the network already contains controllers linked to the equipment input, the function will first erase them.
      In order to apply wanted power profiles to wanted element, use `profile_mapping` column found in load and `sgen`
      equipments.
 
