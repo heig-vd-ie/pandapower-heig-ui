@@ -1,7 +1,7 @@
-pp_heig_fft
+pp_heig_signal
 =================
 
-.. automodule:: pp_heig_fft
+.. automodule:: pp_heig_signal
    :members:
    :undoc-members:
    :show-inheritance:

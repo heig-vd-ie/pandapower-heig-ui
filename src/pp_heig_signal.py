@@ -36,6 +36,7 @@ def compute_fft(data: pd.DataFrame, time_column: str, f: float = 50, round_time:
     Example
     -------
     Loading data recoded from oscilloscope
+    
     >>> data = pd.read_csv("data.csv", skiprows=12, names=['time', 'U_in', 'U_out', 'I_in', 'I_out'])
     >>> data_fft =  compute_phasor(data=data, time_column="time")
     """
@@ -79,6 +80,7 @@ def compute_phasor(data: pd.DataFrame, time_column: str, f: float = 50, round_ti
     Example
     -------
     Loading data recoded from oscilloscope
+
     >>> data = pd.read_csv("data.csv", skiprows=12, names=['time', 'U_in', 'U_out', 'I_in', 'I_out'])
     >>> data_fft =  compute_phasor(data=data, time_column="time")
     """
