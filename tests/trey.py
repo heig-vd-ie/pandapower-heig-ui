@@ -8,7 +8,7 @@ import pandas as pd
 import pandapower as pp
 import pandapower.shortcircuit as sc
 
-from src.pp_heig_plot import (
+from pp_heig_plot import (
     plot_timeseries_result, plot_short_circuit_result, plot_power_network,
     plot_timestep_powerflow_result, _time_to_str
 )
