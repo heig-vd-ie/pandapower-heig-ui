@@ -25,13 +25,15 @@ def calcul_fft(data: pd.DataFrame, time_column: str, f: float = 50, round_time: 
 
 
 def calcul_phasor(data: pd.DataFrame, time_column: str, f: float = 50, round_phasor: int = 4) -> dict: 
-
+    
     results: dict = {}
     h: float = data[time_column].iat[1] - data[time_column].iat[0]
     f_sample: float = 1/h
     nb_period: int = math.floor((data[time_column].iat[-1] - data[time_column].iat[0]) *f)
     signal_len: int = int(f_sample/f*nb_period)
     start_angle: float = 0
+
+    
     f_idx: int = int(f*signal_len/f_sample)
     for i, col in enumerate(data.columns.difference([time_column])):
         signal_fft: np.complex = 2/signal_len*fft(data[col].iloc[0: signal_len].values)[f_idx]
