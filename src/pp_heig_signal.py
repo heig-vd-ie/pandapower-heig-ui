@@ -41,6 +41,7 @@ def compute_fft(data: pd.DataFrame, time_column: str, f: float = 50, round_time:
     >>> data_fft =  compute_phasor(data=data, time_column="time")
     """
     results: pd.DataFrame = pd.DataFrame()
+    
     if data[time_column].diff().dropna().round(round_time).unique().shape[0] != 1 : 
         raise RuntimeError("Time steps are not homogenous")
     h: float = data[time_column].iat[1] - data[time_column].iat[0]
