@@ -1,5 +1,6 @@
 # Import package
 import os
+import sys
 import logging
 import coloredlogs
 import traceback
@@ -50,14 +51,30 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
         "const_i_percent": 0.0, "scaling": 1.0, "vk0_percent": 0.0, "vkr0_percent": 0.0, "mag0_percent": 0.0,
         "mag0_rx": 0.0, "si0_hv_partial": 0.0, "shift_degree": 0.0, "tap_step_percent": 1.0, "tap_phase_shifter": False,
         "tap_step_degree": 0.0, "vm_pu": 1.0, "va_degree": 0.0, "slack_weight": 1.0, "tap_pos": 0, "tap_neutral": 0,
-        "tap_min": 0, "tap_max": 1, "profile_mapping": -1, "current_source": True
+        "tap_min": 0, "tap_max": 1, "profile_mapping": -1, "current_source": True, "name": ""
     }
 
     # Columns which as to be converted to another type
     int_column: list[str] = ["bus", "parallel", "from_bus", "to_bus", "element", "hv_bus", "lv_bus", "tap_pos",
                              "tap_neutral", "tap_min", "tap_max", "profile_mapping"]
     bool_column: list[str] = ["current_source", "in_service"]
-
+    float_columns: list[str] = [
+        "length_km", "r_ohm_per_km", "x_ohm_per_km", "c_nf_per_km", "max_i_ka", "sn_mva", "vn_hv_kv", "vn_lv_kv",
+        "vk_percent", "vkr_percent", "pfe_kw", "i0_percent","g_us_per_km", "g0_us_per_km", "r0_ohm_per_km", "x0_ohm_per_km",
+        "c0_nf_per_km", "df", "p_mw", "q_mvar", "const_z_percent",
+        "const_i_percent", "scaling", "vk0_percent", "vkr0_percent", "mag0_percent",
+        "mag0_rx", "si0_hv_partial", "shift_degree", "tap_step_percent",
+    ]
+    non_null_columns: dict = {
+        "bus": ["vn_kv"], 
+        "line": ["from_bus", "to_bus", "length_km", "r_ohm_per_km", "x_ohm_per_km", "c_nf_per_km", "max_i_ka"],
+        "switch": ["bus", "element", "et", "closed"],
+        "trafo": ["hv_bus", "lv_bus", "sn_mva", "vn_hv_kv", "vn_lv_kv", "vk_percent", "vkr_percent", "pfe_kw",
+        "i0_percent", "vector_group"],
+        "ext_grid": ["bus"],
+        "sgen": ["bus", "p_mw"],
+        "load": ["bus"]
+    } 
     # Create empty network
     net: pp.pandapowerNet = pp.create_empty_network()
 
@@ -79,13 +96,39 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
                     lambda x: list(map(lambda y: [float(z) for z in y.split(",")],
                                        x.replace("[[", "").replace("]]", "").split("], ["))))
             # Change needed columns type from float to int64
-            col: list[str] = list(set(data_df.columns).intersection(int_column))
-            data_df[col] = data_df[col].astype('int64')
+            for col in list(set(data_df.columns).intersection(int_column)):
+                try:
+                    data_df[col] = data_df[col].astype('int64')
+                except(Exception, ):
+                    raise RuntimeError("Impossible to convert {} column into integer in {} equipment.".format(col, eq_name))
+                        # Change needed columns type from float to int64
+            for col in list(set(data_df.columns).intersection(float_columns)):
+                try:
+                    data_df[col] = data_df[col].astype('float64')
+                except(Exception, ):
+                    raise RuntimeError("Impossible to convert {} column into float in {} equipment.".format(col, eq_name))
             # Change needed columns type from float to bool
-            col: list[str] = list(set(data_df.columns).intersection(bool_column))
-            data_df[col] = data_df[col].astype(bool)
+            for col in list(set(data_df.columns).intersection(bool_column)):
+                try:
+                    data_df[col] = data_df[col].astype(bool)
+                except(Exception, ):
+                    raise RuntimeError("Impossible to convert {} column into boolean in {} equipment.".format(col, eq_name))
+    
+            data_df["name"] = data_df["name"].astype(str)
             # Replace np.nan to None
             data_df = data_df.replace(np.nan, None)
+
+            # Check if non-null columns have null^values
+            for col in non_null_columns[eq_name]:
+                if data_df[col].isnull().sum() != 0:
+                    raise RuntimeError("Null values founded in {} column in {} equipment.".format(col, eq_name))
+
+            if eq_name == "trafo":
+                if (data_df["vk_percent"] < data_df["vkr_percent"]).any():
+                    raise RuntimeError("At least one vkr_percent is gater than vk_percent")
+
+                if (data_df["pfe_kw"] > 10*  data_df["sn_mva"] *  data_df["i0_percent"]).any():
+                    raise RuntimeError("At least one pfe_kw is gater than i0_percent")
             # Create pandapower network
             net[eq_name] = data_df
     return net
@@ -130,10 +173,14 @@ def load_power_profile_form_xlsx(file_path: str) -> \
         ).dropna(how="all", axis=1).dropna(how="all", axis=0)
         # If there is no data within the Excel sheet don't save the dataFrame
         if not data_df.empty:
-            # Save DataFrame in power profile dictionary
+            # Save DataFrame in power profile dictionary  
             power_profile[eq_name] = data_df
             # Find the most suitable common period, start time and end time
-            date_time = pd.Series(data_df.index).apply(lambda x: datetime.combine(datetime.today(), x))
+            try:
+                date_time = pd.Series(data_df.index).apply(lambda x: datetime.combine(datetime.today(), x))
+            except:
+                raise RuntimeError("Time column is not in a suitable format. Please select time format in excel sheet")
+                
             period = min(period, date_time.diff().min())
             start_time = min(start_time, data_df.index[0])
             end_time = max(end_time, data_df.index[-1])
