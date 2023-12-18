@@ -12,7 +12,7 @@ import pandapower as pp
 import pandapower.control as control
 import pandapower.timeseries as timeseries
 from pandapower.timeseries.data_sources.frame_data import DFData
-
+import warnings
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
@@ -74,10 +74,19 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
         "ext_grid": ["bus"],
         "sgen": ["bus", "p_mw"],
         "load": ["bus"]
-    } 
+    }
+    bus_column: dict = {
+        "line": ["from_bus", "to_bus"],
+        "trafo": ["hv_bus", "lv_bus"],
+        "ext_grid": ["bus"],
+        "sgen": ["bus"],
+        "load": ["bus"]
+    }
     # Create empty network
     net: pp.pandapowerNet = pp.create_empty_network()
-
+    eq_names = openpyxl.load_workbook(file_path).sheetnames
+    eq_names.remove("bus")
+    eq_names = ["bus"] + eq_names
     # Open Excel file and iterate over every existing sheet table
     for eq_name in openpyxl.load_workbook(file_path).sheetnames:
         # Create a dataFrame form an Excel sheet table
@@ -129,6 +138,9 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
 
                 if (data_df["pfe_kw"] > 10*  data_df["sn_mva"] *  data_df["i0_percent"]).any():
                     raise RuntimeError("At least one pfe_kw is gater than i0_percent")
+            if eq_name != "bus":
+                if (~data_df[bus_column[eq_name]].isin(list(net["bus"].index))).any().sum()!= 0:
+                    raise RuntimeError("At least one bus index in {} equipment is not correct".format(eq_name))
             # Create pandapower network
             net[eq_name] = data_df
     return net
@@ -199,7 +211,7 @@ def load_power_profile_form_xlsx(file_path: str) -> \
         columns=["timestamp"]
     )
     for eq_name, eq_power in power_profile.items():
-        # Create multiindex columns from power profile
+        # Create multi index columns from power profile
         columns = pd.MultiIndex.from_tuples(
             eq_power.columns, names=["profile", "power"]
         )
@@ -247,7 +259,7 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
     >>> apply_power_profile(net=net, equipment="load", power_profiles=timeseries["load"])
 
     """
-
+    warnings.simplefilter(action='ignore', category=pd.errors.PerformanceWarning)
     # Check if pandapower network already have controllers for the given equipment and delete them
     if not net.controller.empty:
         old_controller_index = net.controller[net.controller.object.apply(lambda x: x.element) == equipment].index
@@ -281,7 +293,7 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
             control.ConstControl(net, element=equipment, element_index=mapped_profile.columns,
                                  variable=variable, data_source=DFData(mapped_profile),
                                  profile_name=mapped_profile.columns)
-
+    warnings.simplefilter(action='default', category=pd.errors.PerformanceWarning)
 
 def create_output_writer(net: pp.pandapowerNet, add_results: [list[str] | str] = None):
     r"""Define which results will be stored as output.
@@ -322,7 +334,7 @@ def create_output_writer(net: pp.pandapowerNet, add_results: [list[str] | str] =
 
 def run_time_simulation(net: pp.pandapowerNet, output_filename: str = None,
                         folder: str = r"output") -> dict[str, pd.DataFrame]:
-    r"""Run a time-series power flow on a pandaPower network where power profiles has been applied to the load and the genrators.
+    r"""Run a time-series power flow on a pandaPower network where power profiles has been applied to the load and the generators.
     
     The results will then be converted into a dictionary of `DataFrames` and saved to an Excel file if desired.
 
@@ -340,10 +352,10 @@ def run_time_simulation(net: pp.pandapowerNet, output_filename: str = None,
 
     Example
     -------
-    >>> run_time_simulation(net=pp.pandapowerNet, folder=".cache", output_filename="output_filename")
+    >>> run_time_simulation(net=net, folder=".cache", output_filename="output_filename")
     """
-
     timeseries.run_timeseries(net, time_steps=range(net["time_index"].shape[0]), verbose=False)
+
     results_df: dict[str, pd.DataFrame] = dict()
     for key, result in net.output_writer.at[0, "object"].output.items():
         if key != "Parameters":
