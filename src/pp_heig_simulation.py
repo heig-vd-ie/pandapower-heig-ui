@@ -88,7 +88,7 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
     eq_names.remove("bus")
     eq_names = ["bus"] + eq_names
     # Open Excel file and iterate over every existing sheet table
-    for eq_name in openpyxl.load_workbook(file_path).sheetnames:
+    for eq_name in eq_names:
         # Create a dataFrame form an Excel sheet table
         data_df: pd.DataFrame = pd.read_excel(file_path, sheet_name=eq_name).drop(columns="idx").dropna(how="all")
         if not data_df.empty:

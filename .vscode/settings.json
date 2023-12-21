@@ -18,7 +18,7 @@
       "src/"
   ],
   "python.analysis.autoImportCompletions": true,
-  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "jupyter.notebookFileRoot": "${workspaceFolder}/src",
   "pylint.args": [
     "--max-line-length=450",
     "--max-module-lines=10000",

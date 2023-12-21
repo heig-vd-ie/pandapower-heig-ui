@@ -43,7 +43,10 @@ def compute_fft(data: pd.DataFrame, time_column: str, f: float = 50, round_time:
     results: pd.DataFrame = pd.DataFrame()
     
     if data[time_column].diff().dropna().round(round_time).unique().shape[0] != 1 : 
-        raise RuntimeError("Time steps are not homogenous")
+        log.info("Time steps are not homogenous and have been resampled")
+        data.loc[:, time_column] = np.linspace(
+            data[time_column].iat[0], data[time_column].iat[-1], data.shape[0], endpoint=True
+        )
     h: float = data[time_column].iat[1] - data[time_column].iat[0]
     f_sample: float = 1/h
     nb_period: int = math.floor((data[time_column].iat[-1] - data[time_column].iat[0]) *f)
@@ -87,7 +90,10 @@ def compute_phasor(data: pd.DataFrame, time_column: str, f: float = 50, round_ti
     """
     results: dict = {}
     if data[time_column].diff().dropna().round(round_time).unique().shape[0] != 1 : 
-        raise RuntimeError("Time steps are not homogenous")
+        log.info("Time steps are not homogenous and have been resampled")
+        data.loc[:, time_column] = np.linspace(
+            data[time_column].iat[0], data[time_column].iat[-1], data.shape[0], endpoint=True
+        )
     h: float = data[time_column].iat[1] - data[time_column].iat[0]
     f_sample: float = 1/h
     nb_period: int = math.floor((data[time_column].iat[-1] - data[time_column].iat[0]) *f)
@@ -95,7 +101,8 @@ def compute_phasor(data: pd.DataFrame, time_column: str, f: float = 50, round_ti
         raise RuntimeError("Signal contains less than one period")
     signal_len: int = int(f_sample/f*nb_period)
     start_angle: float = 0
-    f_idx: int = int(f*signal_len/f_sample)
+    f_idx: int = int(f*signal_len/f_sample) + 1
+
     for i, col in enumerate(data.columns.difference([time_column])):
         signal_fft: np.complex = 2/signal_len*fft(data[col].iloc[0: signal_len].values)[f_idx]
         if i == 0:
