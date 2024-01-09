@@ -187,11 +187,15 @@ def load_power_profile_form_xlsx(file_path: str) -> \
         if not data_df.empty:
             # Save DataFrame in power profile dictionary  
             power_profile[eq_name] = data_df
+
             # Find the most suitable common period, start time and end time
             try:
-                date_time = pd.Series(data_df.index).apply(lambda x: datetime.combine(datetime.today(), x))
+                if data_df.index.dtype != time:
+                    date_time = pd.to_datetime(pd.Series(data_df.index), format= '%H:%M:%S')
+                else:    
+                    date_time = pd.Series(data_df.index).apply(lambda x: datetime.combine(datetime.today(), x))
             except:
-                raise RuntimeError("Time column is not in a suitable format. Please select time format in excel sheet")
+                raise RuntimeError("Time column is not in a suitable format. Please use a time (HH:MM:SS) format in excel sheet")
                 
             period = min(period, date_time.diff().min())
             start_time = min(start_time, data_df.index[0])
