@@ -16,7 +16,7 @@ import warnings
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
-
+pd.set_option('future.no_silent_downcasting', True)
 # TODO: (Deadline -- 2023-09-12) Deploy some useful examples on function that students will use (only those ones).
 #       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
 def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
@@ -93,7 +93,7 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
         data_df: pd.DataFrame = pd.read_excel(file_path, sheet_name=eq_name).drop(columns="idx").dropna(how="all")
         if not data_df.empty:
             # Fill null values using default_values dictionary
-            data_df.fillna(value=default_values, inplace=True)
+            data_df=data_df.fillna(value=default_values)
             # Fill bus and load types
             if eq_name == "bus":
                 data_df.fillna(value={"type": "b"}, inplace=True)
@@ -222,13 +222,13 @@ def load_power_profile_form_xlsx(file_path: str) -> \
         # Concatenate power profile with created common datetime index
         data_df = pd.concat([datetime_inter, eq_power], axis=1).sort_index()
         # Fill timestamps unmatched using closest neighbors (forward and backward in order to fill every null)
-        data_df["timestamp"] = data_df["timestamp"].fillna(method='ffill').fillna(method='bfill')
+        data_df["timestamp"] = data_df["timestamp"].ffill().bfill()
         # Group timestamp to keep only the first founded non-null value and then fill null values using
         # first order interpolation
         data_df = data_df \
             .groupby("timestamp").first() \
-            .interpolate().fillna(method="bfill").fillna(method="ffill") \
-            # Create interpolated dataframe with good index and apply into results dictionary
+            .interpolate().ffill().bfill()
+            # Create interpolated dataframe with good indbfillex and apply into results dictionary
         actual_profile = pd.DataFrame(
             data_df.values, index=datetime_inter.index, columns=columns
         )

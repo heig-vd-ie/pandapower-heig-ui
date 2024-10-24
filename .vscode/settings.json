@@ -8,9 +8,6 @@
     "terminal.integrated.env.windows": {
       "PYTHONPATH": "${workspaceFolder}/src",
     },
-    "python.terminal.launchArgs": [
-      "-i"
-    ],
     "[python]": {
       "editor.defaultFormatter": "ms-python.black-formatter"
     },
