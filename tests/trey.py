@@ -22,7 +22,7 @@ if __name__ == "__main__":
     profile_file_path = r"./tests/input_data/power_profile.xlsx"
     output_filename = "simulation_results"
     net: pp.pandapowerNet = load_net_from_xlsx(file_path=net_file_path)
-
+    print(net.trafo)
     # sc_net = deepcopy(net)
     # sc_net["sgen"] = pd.DataFrame(columns=sc_net["sgen"].columns)
     # plot_power_network(

@@ -70,7 +70,7 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
         "line": ["from_bus", "to_bus", "length_km", "r_ohm_per_km", "x_ohm_per_km", "c_nf_per_km", "max_i_ka"],
         "switch": ["bus", "element", "et", "closed"],
         "trafo": ["hv_bus", "lv_bus", "sn_mva", "vn_hv_kv", "vn_lv_kv", "vk_percent", "vkr_percent", "pfe_kw",
-        "i0_percent", "vector_group"],
+        "i0_percent"],
         "ext_grid": ["bus"],
         "sgen": ["bus", "p_mw"],
         "load": ["bus"]
