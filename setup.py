@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="pandapower-heig-ui",                     # This is the name of the package
-    version="0.7.1",                        # The initial release version
+    version="0.8.1",                        # The initial release version
     author="Luca Tomasini",                     # Full name of the author
     description="A set of function coded in order to help heig-vd students to use pandapower library.",
     long_description=long_description,      # Long description read from the the readme file
