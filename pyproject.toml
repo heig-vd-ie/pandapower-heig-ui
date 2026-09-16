@@ -1,0 +1,29 @@
+[project]
+name = "pandapower-heig-ui"
+version = "1.0.0"
+description = ""
+authors = [{name = "Tomasini Luca", email = "luca.tomasini@heig-vd.ch"}]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "coloredlogs>=15.0.1",
+    "ipykernel>=6.29.5",
+    "nbstripout>=0.9.1",
+    "openpyxl>=3.1.5",
+    "pandapower>=3.5.4",
+    "plotly>=7.1.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ipykernel>=6.29.5",
+]
+
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "src"
+]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""

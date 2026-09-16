@@ -102,8 +102,7 @@ def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
             elif eq_name == "line_geodata":
                 # Create list of coordinates from string
                 data_df["coords"] = data_df.coords.apply(
-                    lambda x: list(map(lambda y: [float(z) for z in y.split(",")],
-                                       x.replace("[[", "").replace("]]", "").split("], ["))))
+                    lambda x: list(map(lambda y: [float(z) for z in y.split(",")], x.replace("[[", "").replace("]]", "").split("], ["))))
             # Change needed columns type from float to int64
             for col in list(set(data_df.columns).intersection(int_column)):
                 try:
