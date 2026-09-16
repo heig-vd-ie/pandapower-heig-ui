@@ -1,33 +1,12 @@
+# Common Makefile
 
 PYTHON_VERSION := 3.12
 VENV_DIR := .venv
 ORG := heig-vd-ie
 
 # Default target: help
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := install-all
 
-help: ## Show this help message
-	@echo "Available targets:"
-	@grep -hE '^[a-zA-Z_-]+:.*?##' $(MAKEFILE_LIST) | \
-		sort | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-42s\033[0m %s\n", $$1, $$2}'
-
-detect-env: ## Detect whether running in WSL or native Linux
-	@if grep -qEi "(Microsoft|WSL)" /proc/version; then \
-		echo "Detected: WSL environment"; \
-	else \
-		echo "Detected: Native Linux environment"; \
-	fi
-
-install-pipx: ## Install pipx (Python packaging tool)
-	@read -p "This will install pipx and its dependencies. Continue? [y/N] " answer; \
-	if [ "$$answer" = "y" ] || [ "$$answer" = "Y" ]; then \
-		sudo apt update; \
-		sudo apt install -y pipx; \
-		pipx ensurepath --force; \
-	else \
-		echo "Skipped installing dependencies."; \
-	fi
 
 install-uv: ## Install uv (fast Python package manager)
 	@echo "Checking if uv is installed..."
@@ -51,9 +30,6 @@ install-python-wsl: ## Install Python $(PYTHON_VERSION) and venv support on WSL
 		echo "Python $(PYTHON_VERSION) already installed"; \
 	fi
 
-install-poetry: ## Install Poetry using pipx
-	@echo "Installing Poetry..."
-	pipx install poetry
 
 install-deps: ## Install system dependencies
 	@echo "Installing system dependencies..."
@@ -65,10 +41,6 @@ install-deps: ## Install system dependencies
 		echo "Skipped installing dependencies."; \
 	fi
 
-_venv: ## Create a virtual environment if it doesn't exist
-	@echo "Creating virtual environment with Python $(PYTHON_VERSION)..."
-	python$(PYTHON_VERSION) -m venv .venv
-
 _uv-venv: ## Create a virtual environment using uv
 	@echo "Creating virtual environment using uv..."
 	@command -v uv >/dev/null 2>&1 || (echo "uv is not installed. Run 'make install-uv' first."; exit 1)
@@ -79,19 +51,6 @@ venv-activate: ## enter venv in a subshell
 	@test -d .venv || make _venv
 	@bash --rcfile <(echo '. ~/.bashrc; . .venv/bin/activate; echo "You are now in a subshell with venv activated."; . scripts/enable-direnv.sh') -i
 
-poetry-use: ## Install Python packages using Poetry
-	@echo "Installing Python packages using Poetry..."
-	poetry env use .venv/bin/python$(PYTHON_VERSION)
-
-poetry-install: ## Update Python packages using Poetry
-	@echo "Updating Python packages using Poetry..."
-	@poetry install --extras "internal" || ( \
-		echo "⚠️ If psycopg-c installation fails, see:"; \
-		echo "https://stackoverflow.com/questions/77727508/problem-installing-psycopg2-for-python-venv-through-poetry"; \
-		echo "Error hint: _psycopg-c may not support PEP 517 builds or may be missing system dependencies."; \
-		exit 1 \
-	)
-
 uv-install: ## Install Python packages using uv
 	@echo "Installing Python packages using uv..."
 	@command -v uv >/dev/null 2>&1 || (echo "uv is not installed. Run 'make install-uv' first."; exit 1)
@@ -101,13 +60,6 @@ uv-sync: ## Sync dependencies using uv
 	@echo "Syncing Python packages using uv..."
 	@command -v uv >/dev/null 2>&1 || (echo "uv is not installed. Run 'make install-uv' first."; exit 1)
 	uv sync --extra dev
-
-venv-activate-and-poetry-use-install: SHELL:=/bin/bash
-venv-activate-and-poetry-use-install: ## Activate venv and install packages
-	@echo "Activating virtual environment and installing packages..."
-	@test -d .venv || make _venv
-	@rm -f poetry.lock || true
-	@bash --rcfile <(echo '. ~/.bashrc; . .venv/bin/activate; echo "You are now in a subshell with venv activated."; make poetry-use; make poetry-install; make nbstripout-install; . scripts/enable-direnv.sh') -i
 
 uv-venv-setup: SHELL:=/bin/bash
 uv-venv-setup: ## Setup venv and install packages using uv
@@ -120,14 +72,6 @@ venv-activate-and-uv-install: ## Activate venv and install packages using uv (no
 	@echo "Activating virtual environment and installing packages with uv..."
 	@test -d .venv || make _uv-venv
 	@. .venv/bin/activate && make uv-sync && make nbstripout-install
-
-install-vscode-extensions: ## Install Visual Studio Code extensions
-	@echo "Installing Visual Studio Code extensions..."
-	@xargs -n 1 code --install-extension < .vscode/extensions.txt 
-
-freeze-vscode-extensions: ## Update Visual Studio Code extensions
-	@echo "Freezing Visual Studio Code extensions..."
-	@code --list-extensions > .vscode/extensions.txt
 
 
 install-all: ## Install all dependencies and set up the environment using uv
@@ -143,29 +87,6 @@ uninstall-venv: ## Uninstall the virtual environment
 	rm -rf $(VENV_DIR)
 	@echo "Virtual environment uninstalled."
 
-run-tests-py: ## [file] Run tests using pytest (check venv is activated otherwise activated)
-	@echo "Running Python tests..."
-	@if [ -n "$(file)" ]; then \
-		PYTHONWARNINGS=ignore $(VENV_DIR)/bin/python -m pytest "$(file)" -v; \
-	else \
-		PYTHONWARNINGS=ignore $(VENV_DIR)/bin/python -m pytest tests/ -v;\
-	fi
-
-format-py: ## Format Python code using black
-	@echo "Formatting Python code with black..."
-	@poetry run black .
-
-build-wheel: # Build the Python wheel for this project based on pyproject.toml version
-	@echo "Building Python wheel..."
-	@poetry build -f wheel
-
-fetch-wheel: ## Fetch the Python wheel from a remote URL [<organization> <repo> <name-of-wheel> <version> <dest_dir>]
-	@echo "Fetching Python wheel..."
-	@bash scripts/fetch-wheel.sh $(ORG) $(REPO) $(BRANCH) $(VERSION) $(DEST_DIR)
-
-lint: ## Lint the code using pylint
-	@echo "Linting Python code with pylint..."
-	@poetry run pylint --rcfile .pylintrc **/*.py
 
 nbstripout-install:
 	@echo "Installing nbstripout git filter..."

@@ -1,6 +1,6 @@
 [project]
 name = "pandapower-heig-ui"
-version = "1.2.2"
+version = "1.2.3"
 description = ""
 authors = [{name = "Tomasini Luca", email = "luca.tomasini@heig-vd.ch"}]
 readme = "README.md"
@@ -17,6 +17,7 @@ dependencies = [
     "pandas==2.2.2",
     "matplotlib==3.10.7",
     "kaleido==0.2.1"
+    "igraph==0.11.9"
 ]
 
 [project.optional-dependencies]
