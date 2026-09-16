@@ -1,17 +1,20 @@
 [project]
 name = "pandapower-heig-ui"
-version = "1.1.0"
+version = "1.2.0"
 description = ""
 authors = [{name = "Tomasini Luca", email = "luca.tomasini@heig-vd.ch"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "coloredlogs>=15.0.1",
+    "coloredlogs==15.0.1",
     "ipykernel>=6.29.5",
     "nbstripout>=0.9.1",
-    "openpyxl>=3.1.5",
+    "openpyxl==3.1.5",
     "pandapower==2.14.8",
-    "plotly>=7.1.0",
+    "plotly==5.23.0",
+    "numpy==1.26.4",
+    "numba==0.60.0",
+    "pandas==2.2.2"
 ]
 
 [project.optional-dependencies]
