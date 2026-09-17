@@ -19,131 +19,6 @@ coloredlogs.install(level="INFO")
 pd.set_option('future.no_silent_downcasting', True)
 # TODO: (Deadline -- 2023-09-12) Deploy some useful examples on function that students will use (only those ones).
 #       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
-def load_net_from_xlsx(file_path: str) -> pp.pandapowerNet:
-    r"""Create a pandaPower network object using data stored in a xlsx file. 
-    
-    Pay attention to the following points:
-
-    - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
-    - Every column marked in green is mandatory.
-    - Every column marked in yellow is mandatory for single phase short-circuit simulation.
-    - Every column marked in red is mandatory to map loads and generators to their timeseries power profile timeseries powerflow simulation.
-
-    Parameters
-    ----------
-    file_path : str
-        File path of the xlsx file where the power network data are stored.
-
-    Returns
-    -------
-    net : pandapower.pandapowerNet
-        Create pandaPower object from xlsx file.
-
-    Example
-    -------
-    >>> pp.pandapowerNet = load_net_from_xlsx(file_path="net_file_path.xlsx")
-    """
-
-    # Columns which have to be set by default when None value is founded
-    default_values: dict = {
-        "in_service": True, "g_us_per_km": 0.0, "g0_us_per_km": 0.0, "r0_ohm_per_km": 0.0, "x0_ohm_per_km": 0.0,
-        "c0_nf_per_km": 0.0, "parallel": 1, "df": 1.0, "p_mw": 0.0, "q_mvar": 0.0, "const_z_percent": 0.0,
-        "const_i_percent": 0.0, "scaling": 1.0, "vk0_percent": 0.0, "vkr0_percent": 0.0, "mag0_percent": 0.0,
-        "mag0_rx": 0.0, "si0_hv_partial": 0.0, "shift_degree": 0.0, "tap_step_percent": 1.0, "tap_phase_shifter": False,
-        "tap_step_degree": 0.0, "vm_pu": 1.0, "va_degree": 0.0, "slack_weight": 1.0, "tap_pos": 0, "tap_neutral": 0,
-        "tap_min": 0, "tap_max": 1, "profile_mapping": -1, "current_source": True, "name": ""
-    }
-
-    # Columns which as to be converted to another type
-    int_column: list[str] = ["bus", "parallel", "from_bus", "to_bus", "element", "hv_bus", "lv_bus", "tap_pos",
-                             "tap_neutral", "tap_min", "tap_max", "profile_mapping"]
-    bool_column: list[str] = ["current_source", "in_service"]
-    float_columns: list[str] = [
-        "length_km", "r_ohm_per_km", "x_ohm_per_km", "c_nf_per_km", "max_i_ka", "sn_mva", "vn_hv_kv", "vn_lv_kv",
-        "vk_percent", "vkr_percent", "pfe_kw", "i0_percent","g_us_per_km", "g0_us_per_km", "r0_ohm_per_km", "x0_ohm_per_km",
-        "c0_nf_per_km", "df", "p_mw", "q_mvar", "const_z_percent",
-        "const_i_percent", "scaling", "vk0_percent", "vkr0_percent", "mag0_percent",
-        "mag0_rx", "si0_hv_partial", "shift_degree", "tap_step_percent",
-    ]
-    non_null_columns: dict = {
-        "bus": ["vn_kv"], 
-        "line": ["from_bus", "to_bus", "length_km", "r_ohm_per_km", "x_ohm_per_km", "c_nf_per_km", "max_i_ka"],
-        "switch": ["bus", "element", "et", "closed"],
-        "trafo": ["hv_bus", "lv_bus", "sn_mva", "vn_hv_kv", "vn_lv_kv", "vk_percent", "vkr_percent", "pfe_kw",
-        "i0_percent"],
-        "ext_grid": ["bus"],
-        "sgen": ["bus", "p_mw"],
-        "load": ["bus"]
-    }
-    bus_column: dict = {
-        "line": ["from_bus", "to_bus"],
-        "trafo": ["hv_bus", "lv_bus"],
-        "ext_grid": ["bus"],
-        "sgen": ["bus"],
-        "load": ["bus"]
-    }
-    # Create empty network
-    net: pp.pandapowerNet = pp.create_empty_network()
-    eq_names = openpyxl.load_workbook(file_path).sheetnames
-    eq_names.remove("bus")
-    eq_names = ["bus"] + eq_names
-    # Open Excel file and iterate over every existing sheet table
-    for eq_name in eq_names:
-        # Create a dataFrame form an Excel sheet table
-        data_df: pd.DataFrame = pd.read_excel(file_path, sheet_name=eq_name).drop(columns="idx").dropna(how="all")
-        if not data_df.empty:
-            # Fill null values using default_values dictionary
-            data_df=data_df.fillna(value=default_values)
-            # Fill bus and load types
-            if eq_name == "bus":
-                data_df.fillna(value={"type": "b"}, inplace=True)
-            elif eq_name == "load":
-                data_df.fillna(value={"type": "wye"}, inplace=True)
-            elif eq_name == "line_geodata":
-                # Create list of coordinates from string
-                data_df["coords"] = data_df.coords.apply(
-                    lambda x: list(map(lambda y: [float(z) for z in y.split(",")], x.replace("[[", "").replace("]]", "").split("], ["))))
-            # Change needed columns type from float to int64
-            for col in list(set(data_df.columns).intersection(int_column)):
-                try:
-                    data_df[col] = data_df[col].astype('int64')
-                except(Exception, ):
-                    raise RuntimeError("Impossible to convert {} column into integer in {} equipment.".format(col, eq_name))
-                        # Change needed columns type from float to int64
-            for col in list(set(data_df.columns).intersection(float_columns)):
-                try:
-                    data_df[col] = data_df[col].astype('float64')
-                except(Exception, ):
-                    raise RuntimeError("Impossible to convert {} column into float in {} equipment.".format(col, eq_name))
-            # Change needed columns type from float to bool
-            for col in list(set(data_df.columns).intersection(bool_column)):
-                try:
-                    data_df[col] = data_df[col].astype(bool)
-                except(Exception, ):
-                    raise RuntimeError("Impossible to convert {} column into boolean in {} equipment.".format(col, eq_name))
-    
-            data_df["name"] = data_df["name"].astype(str)
-            # Replace np.nan to None
-            data_df = data_df.replace(np.nan, None)
-
-            # Check if non-null columns have null^values
-            for col in non_null_columns[eq_name]:
-                if data_df[col].isnull().sum() != 0:
-                    raise RuntimeError("Null values founded in {} column in {} equipment.".format(col, eq_name))
-
-            if eq_name == "trafo":
-                if (data_df["vk_percent"] < data_df["vkr_percent"]).any():
-                    raise RuntimeError("At least one vkr_percent is gater than vk_percent")
-
-                if (data_df["pfe_kw"] > 10*  data_df["sn_mva"] *  data_df["i0_percent"]).any():
-                    raise RuntimeError("At least one pfe_kw is gater than i0_percent")
-            if eq_name != "bus":
-                if (~data_df[bus_column[eq_name]].isin(list(net["bus"].index))).any().sum()!= 0:
-                    raise RuntimeError("At least one bus index in {} equipment is not correct".format(eq_name))
-            # Create pandapower network
-            net[eq_name] = data_df
-    return net
-
 
 def load_power_profile_form_xlsx(file_path: str) -> \
         (dict)[str, dict[str, pd.DataFrame]]:
@@ -270,7 +145,7 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
     # Create a dictionary from profile_mapping column
     profile_mapping: dict = net[equipment] \
         .reset_index() \
-        .groupby("profile_mapping")["index"] \
+        .groupby("profile_mapping")["id"] \
         .apply(list).to_dict()
     for variable, profile in power_profiles.items():
         if profile is not None:
@@ -293,9 +168,11 @@ def apply_power_profile(net: pp.pandapowerNet, equipment: str, power_profiles: d
                 log.warning("{} equipments have no {} profiles".format(unmapped_eq_names, variable))
             mapped_profile.reset_index(drop=True, inplace=True)
 
-            control.ConstControl(net, element=equipment, element_index=mapped_profile.columns,
-                                 variable=variable, data_source=DFData(mapped_profile),
-                                 profile_name=mapped_profile.columns)
+            control.ConstControl(
+                net, element=equipment, element_index=mapped_profile.columns,
+                variable=variable, data_source=DFData(mapped_profile),
+                profile_name=mapped_profile.columns
+            )
     warnings.simplefilter(action='default', category=pd.errors.PerformanceWarning)
 
 def create_output_writer(net: pp.pandapowerNet, add_results: [list[str] | str] = None):

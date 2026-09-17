@@ -2,6 +2,7 @@
 import os
 from copy import deepcopy
 import pandas as pd
+from typing import Optional
 from datetime import datetime, time
 import pandapower as pp
 import pandapower.plotting.plotly as pplotly
@@ -10,14 +11,16 @@ from plotly.graph_objs import Figure, Layout
 from plotly.graph_objs.layout import XAxis, YAxis
 import logging
 import coloredlogs
+from shapely.geometry import shape, Point, mapping
+import json
 
 log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
+def _make_horizontal_cooridnates(value: str) -> str:
+    point = shape(json.loads(value))
+    return json.dumps(mapping(Point(point.y,  -point.x))) # Type: ignore.
 
-# TODO: (Deadline -- 2023-09-12) Deploy some useful examples on function that students will use (only those ones).
-#       Develop a deep understanding of LTI's function and apply them in the tutorial notebook for next week.
-
-def plot_power_network(net: pp.pandapowerNet, filename: str = None, folder: str = "plot", plot_title: str = None, 
+def plot_power_network(net: pp.pandapowerNet, filename: Optional[str] = None, folder: str = "plot", plot_title: Optional[str]  = None, 
                        line_width: int = 3, trafo_width: int =7, bus_size: int = 20, add_zone: bool = True,  **kwargs):
     r"""Plot the network scheme in a Plotly figure, displaying zones if wanted.
     
@@ -55,15 +58,16 @@ def plot_power_network(net: pp.pandapowerNet, filename: str = None, folder: str 
     net_copy = deepcopy(net)
     colors = ['b', 'g', 'r', 'c', 'm', 'k', 'w']
     # Generate bus geodata if needed
-    if net_copy.bus_geodata.empty:
-        pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
-        net_copy.bus_geodata[["x", "y"]] = net_copy.bus_geodata[["y", "x"]]
-        net_copy.bus_geodata["y"] *=-1
-
+    
+    pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
+    net_copy["bus"]["geo"] = net_copy["bus"]["geo"].apply(_make_horizontal_cooridnates)
+        
+    
     traces = []
     # create lines trace
-    traces += pplotly.create_line_trace(net_copy, net_copy.line.index, color='k', width=line_width,
-                                             trace_name="Lines")
+    traces += pplotly.create_line_trace(
+        net_copy, net_copy.line.index, color='k', width=line_width,
+            trace_name="Lines")
     # Create transfo trace
     trafo_info = pd.Series(
         index=net_copy.trafo.index,
@@ -153,11 +157,9 @@ def plot_powerflow_result(
     net_copy = deepcopy(net)
     traces = []
     # Generate bus geodata if needed
-    if net_copy.bus_geodata.empty:
-        pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
 
-        net_copy.bus_geodata[["x", "y"]] = net_copy.bus_geodata[["y", "x"]]
-        net_copy.bus_geodata["y"] *=-1
+    pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
+    net_copy["bus"]["geo"] = net_copy["bus"]["geo"].apply(_make_horizontal_cooridnates)
 
     trafo_info = pd.Series(
         index=net_copy.line.index,
@@ -234,12 +236,10 @@ def plot_short_circuit_result(
     """
     net_copy = deepcopy(net)
     traces = []
-    # Generate bus geodata if needed
-    if net_copy.bus_geodata.empty:
-        pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
-        # Rotate figure
-        net_copy.bus_geodata[["x", "y"]] = net_copy.bus_geodata[["y", "x"]]
-        net_copy.bus_geodata["y"] *=-1
+
+    pplotly.create_generic_coordinates(net=net_copy, overwrite=True)
+    # Rotate figure
+    net_copy["bus"]["geo"] = net_copy["bus"]["geo"].apply(_make_horizontal_cooridnates)
 
 
     traces += pplotly.create_trafo_trace(
