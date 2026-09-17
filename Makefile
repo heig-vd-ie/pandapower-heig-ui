@@ -113,3 +113,6 @@ release:
 	git push origin HEAD; \
 	git push origin "v$$NEW_VERSION"; \
 	echo "Version $$NEW_VERSION committed, tagged, and pushed."
+
+force_commit:
+	git push origin main --force-with-lease
