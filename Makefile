@@ -91,3 +91,54 @@ uninstall-venv: ## Uninstall the virtual environment
 nbstripout-install:
 	@echo "Installing nbstripout git filter..."
 	nbstripout --install
+
+
+.PHONY: release version bump-patch bump-minor bump-major
+
+# Get the current version from pyproject.toml
+CURRENT_VERSION := $(shell grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
+
+version:
+	@echo "Current version: $(CURRENT_VERSION)"
+
+release:
+	@echo "Current version: $(CURRENT_VERSION)"
+	@read -p "Enter new version: " NEW_VERSION; \
+	if [ -z "$$NEW_VERSION" ]; then \
+		echo "No version entered, aborting."; \
+		exit 1; \
+	fi; \
+	sed -i.bak -E "s/^version = \".*\"/version = \"$$NEW_VERSION\"/" pyproject.toml; \
+	rm -f pyproject.toml.bak; \
+	git add pyproject.toml; \
+	git commit -m "chore: bump version to $$NEW_VERSION"; \
+	git tag -a "v$$NEW_VERSION" -m "Release v$$NEW_VERSION"; \
+	echo "Version bumped to $$NEW_VERSION, committed and tagged."; \
+	echo "Run 'git push && git push --tags' to publish."
+
+bump-patch:
+	@$(MAKE) _bump PART=patch
+
+bump-minor:
+	@$(MAKE) _bump PART=minor
+
+bump-major:
+	@$(MAKE) _bump PART=major
+
+_bump:
+	@NEW_VERSION=$$(python3 -c "\
+	v = '$(CURRENT_VERSION)'.split('.'); \
+	major, minor, patch = int(v[0]), int(v[1]), int(v[2]); \
+	part = '$(PART)'; \
+	if part == 'major': major, minor, patch = major+1, 0, 0; \
+	elif part == 'minor': minor, patch = minor+1, 0; \
+	else: patch += 1; \
+	print(f'{major}.{minor}.{patch}')"); \
+	echo "Bumping $(CURRENT_VERSION) -> $$NEW_VERSION ($(PART))"; \
+	sed -i.bak -E "s/^version = \".*\"/version = \"$$NEW_VERSION\"/" pyproject.toml; \
+	rm -f pyproject.toml.bak; \
+	git add pyproject.toml; \
+	git commit -m "chore: bump version to $$NEW_VERSION"; \
+	git tag -a "v$$NEW_VERSION" -m "Release v$$NEW_VERSION"; \
+	echo "Version bumped to $$NEW_VERSION, committed and tagged."; \
+	echo "Run 'git push && git push --tags' to publish."
