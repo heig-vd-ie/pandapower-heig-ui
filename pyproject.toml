@@ -1,6 +1,6 @@
 [project]
 name = "pandapower-heig-ui"
-version = "1.3.0"
+version = ""
 description = ""
 authors = [{name = "Tomasini Luca", email = "luca.tomasini@heig-vd.ch"}]
 readme = "README.md"

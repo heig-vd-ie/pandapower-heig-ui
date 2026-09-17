@@ -91,3 +91,25 @@ uninstall-venv: ## Uninstall the virtual environment
 nbstripout-install:
 	@echo "Installing nbstripout git filter..."
 	nbstripout --install
+
+# Get the current version from pyproject.toml
+CURRENT_VERSION := $(shell grep -m1 '^version = ' pyproject.toml | sed -E 's/version = "(.*)"/\1/')
+
+version:
+	@echo "Current version: $(CURRENT_VERSION)"
+
+release:
+	@echo "Current version: $(CURRENT_VERSION)"
+	@read -p "Enter new version: " NEW_VERSION; \
+	if [ -z "$$NEW_VERSION" ]; then \
+		echo "No version entered, aborting."; \
+		exit 1; \
+	fi; \
+	sed -i.bak -E "s/^version = \".*\"/version = \"$$NEW_VERSION\"/" pyproject.toml; \
+	rm -f pyproject.toml.bak; \
+	git add pyproject.toml; \
+	git commit -m "chore: bump version to $$NEW_VERSION"; \
+	git tag -a "v$$NEW_VERSION" -m "Release v$$NEW_VERSION"; \
+	git push origin HEAD; \
+	git push origin "v$$NEW_VERSION"; \
+	echo "Version $$NEW_VERSION committed, tagged, and pushed."
