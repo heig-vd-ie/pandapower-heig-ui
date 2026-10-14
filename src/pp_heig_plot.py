@@ -193,7 +193,7 @@ def plot_powerflow_result(
         cmax=voltage_range[1], infofunc=bus_info, cbar_title='Bus voltage [pu]'
     )
     fig = _draw_traces(traces, showlegend=False)
-    save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, width=width, **kwargs)
+    # save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, width=width, **kwargs)
 
 
 def plot_short_circuit_result(
@@ -266,7 +266,7 @@ def plot_short_circuit_result(
     )
 
     fig = _draw_traces(traces, showlegend=False)
-    save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
+    # save_fig(fig=fig, filename=filename, folder=folder, plot_title=plot_title, **kwargs)
 
 
 def plot_timestamps_powerflow_result(
@@ -349,10 +349,10 @@ def plot_timeseries_result(
         ))
     x_ticks = list(range(data_df.shape[0]))[::int(data_df.shape[0] / 6)]
     x_ticks_label = _time_to_str(data_df.index)[::int(data_df.shape[0] / 6)]
-    save_fig(
-        fig=fig, filename=filename, folder=folder, xlabel= "Time", ylabel=ylabel, plot_title=plot_title,
-        x_ticks=(x_ticks,x_ticks_label), show_grid=True, **kwargs
-    )
+    # save_fig(
+    #     fig=fig, filename=filename, folder=folder, xlabel= "Time", ylabel=ylabel, plot_title=plot_title,
+    #     x_ticks=(x_ticks,x_ticks_label), show_grid=True, **kwargs
+    # )
 
 
 def _draw_traces(traces: list, showlegend: bool) -> Figure:
