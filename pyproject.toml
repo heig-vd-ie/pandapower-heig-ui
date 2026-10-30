@@ -13,13 +13,19 @@ dependencies = [
     "ipykernel>=6.29.5",
     "kaleido>=1.4.0",
     "matplotlib>=3.11.2",
+    "myst-parser>=5.1.0",
+    "nbsphinx>=0.9.8",
     "nbstripout>=0.9.1",
     "openpyxl>=3.1.5",
     "pandapower>=3.5.4",
     "plotly>=7.1.0",
     "polars>=1.44.2",
     "pyarrow>=25.0.1",
+    "pydata-sphinx-theme>=0.23.0",
     "shapely>=2.1.2",
+    "sphinx>=9.1.1",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-rtd-theme>=3.1.0",
 ]
 
 [project.optional-dependencies]

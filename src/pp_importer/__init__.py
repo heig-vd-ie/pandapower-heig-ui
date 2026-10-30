@@ -109,7 +109,7 @@ class PandaPowerImporter:
             raise ValueError(f"\n\n\nInvalid operation error for table {table_name} with error: {error}")
         return new_df
 
-    def replace_table(self, **kwargs: Unpack[PandaPowerDataFrame]):
+    def _replace_table(self, **kwargs: Unpack[PandaPowerDataFrame]):
         table_dict: dict[str, pl.DataFrame] = {}
         for table_name, table in kwargs.items():
             table_dict[table_name] = self._cast_and_validate(
@@ -117,14 +117,41 @@ class PandaPowerImporter:
             )
         return self._replace(**table_dict)
 
+    def _schema_to_pandapower(self) -> pp.pandapowerNet:
+            net: pp.pandapowerNet = pp.create_empty_network()
+            for table_name, table_pl in self.__dict__.items():
+                net[table_name] = pl.DataFrame(table_pl).to_pandas().set_index("id")
+            return net
     
-    def schema_to_pandapower(self) -> pp.pandapowerNet:
-        net: pp.pandapowerNet = pp.create_empty_network()
-        for table_name, table_pl in self.__dict__.items():
-            net[table_name] = pl.DataFrame(table_pl).to_pandas().set_index("id")
-        return net
     
     def read_excel(self, file_path: str) -> pp.pandapowerNet:
+        r"""Create a pandaPower network object using data stored in a xlsx file. 
+    
+        Pay attention to the following points:
+
+        - Xlsx file template should be the one provided in the `package repository <https://github.com/heig-vd-iese/pandapower-heig-ui/tree/main/template>`_.
+        - Every column marked in green is mandatory.
+        - Every column marked in yellow is mandatory for single phase short-circuit simulation.
+        - Every column marked in red is mandatory to map loads and generators to their timeseries power profile timeseries powerflow simulation.
+
+        Parameters
+        ----------
+        file_path : str
+            File path of the xlsx file where the power network data are stored.
+
+        Returns
+        -------
+        net : pandapower.pandapowerNet
+            Create pandaPower object from xlsx file.
+
+        Example
+        -------
+        >>> from pp_importer import PandaPowerImporter
+        >>> net_file_path = "3_bus_example.xlsx"
+        >>> net = PandaPowerImporter().read_excel(file_path=net_file_path)
+        """
+        
+        
         data_dict = {}
 
         for eq_name in openpyxl.load_workbook(file_path).sheetnames:
@@ -142,4 +169,6 @@ class PandaPowerImporter:
                     f"\n\n\nFailed to read table {eq_name} from Excel file with error: {e}"
                 )
         
-        return self.replace_table(**data_dict).schema_to_pandapower()
+        return self._replace_table(**data_dict)._schema_to_pandapower()
+    
+ 

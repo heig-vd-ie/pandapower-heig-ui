@@ -2,7 +2,7 @@
 import os
 from copy import deepcopy
 import pandas as pd
-from typing import Optional
+from typing import Optional, Union
 from datetime import datetime, time
 import pandapower as pp
 import pandapower.plotting.plotly as pplotly
@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 coloredlogs.install(level="INFO")
 def _make_horizontal_cooridnates(value: str) -> str:
     point = shape(json.loads(value))
-    return json.dumps(mapping(Point(point.y,  -point.x))) # Type: ignore.
+    return json.dumps(mapping(Point(point.y,  -point.x))) # Type: ignore
 
 def plot_power_network(net: pp.pandapowerNet, filename: Optional[str] = None, folder: str = "plot", plot_title: Optional[str]  = None, 
                        line_width: int = 3, trafo_width: int =7, bus_size: int = 20, add_zone: bool = True,  **kwargs):
@@ -488,7 +488,7 @@ def _bold(string: str | None) -> str | None:
     else:
         return None
 
-def _time_to_str(time_stamps: [time | datetime | list | tuple | pd.Index | pd.Series]) -> str | list[str] | None:
+def _time_to_str(time_stamps: Union[time | datetime | list | tuple | pd.Index | pd.Series]) -> str | list[str] | None:
     r"""Internal function used to convert datetime objects in wanted string format (i.e. "12H00").
 
     Parameters
