@@ -25,10 +25,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Set up Python 3.10
+      - name: Set up Python 3.12
         uses: actions/setup-python@v2
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v5
@@ -40,9 +40,8 @@ jobs:
 
       - name: Install dependencies with uv
         run: |
-          uv pip install --system -r requirements.txt
-          # Alternatively, if you want uv to manage everything or use a pyproject.toml:
-          # uv pip install --system sphinx sphinx_rtd_theme ghp-import
+          uv sync --all-extras
+
 
       - name: Build HTML
         run: |
