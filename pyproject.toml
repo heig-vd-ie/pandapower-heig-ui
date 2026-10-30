@@ -9,6 +9,7 @@ dependencies = [
     "coloredlogs>=15.0.1",
     "dataframely>=3.1.0",
     "fastexcel>=0.21.0",
+    "ghp-import>=2.1.0",
     "igraph>=1.0.0",
     "ipykernel>=6.29.5",
     "kaleido>=1.4.0",
