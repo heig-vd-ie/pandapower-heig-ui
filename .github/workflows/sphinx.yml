@@ -50,7 +50,7 @@ jobs:
 
       - name: Run ghp-import
         run: |
-          ghp-import -n -p -f docs/_build/html
+          uv run ghp-import -n -p -f docs/_build/html
 
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
